@@ -13,8 +13,70 @@ const UI = {
   startBtn: document.getElementById('start-btn'),
   restartBtn: document.getElementById('restart-btn'),
   phaseCompleteScreen: document.getElementById('phase-complete-screen'),
-  continueBtn: document.getElementById('continue-btn')
+  continueBtn: document.getElementById('continue-btn'),
+  continueScreen: document.getElementById('continue-screen'),
+  btnYesContinue: document.getElementById('btn-yes-continue'),
+  btnNoContinue: document.getElementById('btn-no-continue'),
+  continuesLeftText: document.getElementById('continues-left'),
+  continueTimerText: document.getElementById('continue-timer')
 };
+
+// --- IMAGE ASSETS ---
+const menuDogImg = new Image();
+menuDogImg.src = 'luna-menu-transparent.png';
+
+let continueInterval = null;
+
+function showContinueScreen() {
+  if (game.continues <= 0) {
+    triggerGameOver();
+    return;
+  }
+  
+  gameState = 'CONTINUE';
+  UI.continueScreen.classList.remove('hidden');
+  UI.continuesLeftText.innerText = game.continues;
+  stopBGM();
+  
+  let count = 10;
+  UI.continueTimerText.innerText = count;
+  
+  if (continueInterval) clearInterval(continueInterval);
+  continueInterval = setInterval(() => {
+    count--;
+    UI.continueTimerText.innerText = count;
+    if (count <= 0) {
+      rejectContinue();
+    }
+  }, 1000);
+}
+
+function acceptContinue() {
+  if (continueInterval) clearInterval(continueInterval);
+  game.continues--;
+  game.lives = 5;
+  UI.continueScreen.classList.add('hidden');
+  resetPhase();
+  gameState = 'PLAYING';
+  startBGM();
+  saveGame();
+}
+
+function rejectContinue() {
+  if (continueInterval) clearInterval(continueInterval);
+  UI.continueScreen.classList.add('hidden');
+  triggerGameOver();
+}
+
+function triggerGameOver() {
+  gameState = 'GAMEOVER';
+  UI.finalScore.innerText = game.score;
+  setTimeout(() => {
+    UI.gameOverScreen.classList.remove('hidden');
+  }, 1000);
+  stopBGM();
+  saveGame();
+}
 
 const GROUND_Y = 500;
 const DOG_COLOR = '#B2663E';
@@ -23,6 +85,32 @@ const EARS_COLOR = '#5C2E0A';
 // --- AUDIO SYSTEM ---
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
+
+function saveGame() {
+  const data = {
+    score: game.score,
+    phase: game.phase,
+    lives: game.lives,
+    continues: game.continues,
+    outfit: player.outfit
+  };
+  localStorage.setItem('luna_arcade_save', JSON.stringify(data));
+}
+
+function loadGame() {
+  const saved = localStorage.getItem('luna_arcade_save');
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      game.score = data.score || 0;
+      game.phase = data.phase || 1;
+      game.lives = data.lives || 5;
+      game.continues = data.continues || 5;
+      player.outfit = data.outfit || 'sailor';
+      updateUI();
+    } catch(e) { console.error("Load error:", e); }
+  }
+}
 
 function initAudio() {
   if (!audioCtx) {
@@ -287,117 +375,7 @@ const ttsVoice = new Audio('https://translate.google.com/translate_tts?ie=UTF-8&
 let introIndex = 0;
 let voiced = false;
 
-function drawLunaMenu(ctx, x, y, size, timer) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(size/100, size/100);
 
-  // Wag tail
-  const wag = Math.sin(timer * 20) * 0.4;
-  ctx.save();
-  ctx.translate(25, -5);
-  ctx.rotate(wag + 0.3);
-  ctx.fillStyle = '#833d1a'; // Dark brown
-  ctx.beginPath();
-  ctx.ellipse(0, -15, 6, 20, 0, 0, Math.PI*2);
-  ctx.fill();
-  ctx.restore();
-
-  // Back legs
-  ctx.fillStyle = '#6b3216';
-  ctx.beginPath(); ctx.ellipse(-15, 20, 7, 12, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(15, 20, 7, 12, 0, 0, Math.PI*2); ctx.fill();
-
-  // Long Body
-  ctx.fillStyle = '#af582c'; // light brown
-  ctx.beginPath();
-  ctx.ellipse(0, 0, 35, 24, 0, 0, Math.PI*2);
-  ctx.fill();
-
-  // Front legs
-  ctx.beginPath(); ctx.ellipse(-20, 22, 7, 12, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(20, 22, 7, 12, 0, 0, Math.PI*2); ctx.fill();
-
-  // Paws
-  ctx.fillStyle = '#6b3216';
-  ctx.beginPath(); ctx.ellipse(-22, 28, 9, 5, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(22, 28, 9, 5, 0, 0, Math.PI*2); ctx.fill();
-
-  // Head Base
-  ctx.save();
-  ctx.translate(-25, -20);
-  const earFlap = (introIndex < introText.length) ? Math.sin(timer * 15) * 0.1 : 0;
-  ctx.rotate(earFlap); // slight head wobble while talking
-
-  // Back ear
-  ctx.fillStyle = '#6b3216';
-  ctx.beginPath(); ctx.ellipse(18, 5, 12, 28, -0.2, 0, Math.PI*2); ctx.fill();
-
-  // Head
-  ctx.fillStyle = '#af582c';
-  ctx.beginPath(); ctx.ellipse(0, -5, 22, 20, 0, 0, Math.PI*2); ctx.fill();
-
-  // Snout
-  ctx.beginPath(); ctx.ellipse(-15, 5, 16, 12, -0.2, 0, Math.PI*2); ctx.fill();
-
-  // Black nose
-  ctx.fillStyle = '#222';
-  ctx.beginPath(); ctx.ellipse(-27, 2, 8, 6, -0.2, 0, Math.PI*2); ctx.fill();
-
-  // Front ear (floppy)
-  ctx.fillStyle = '#6b3216';
-  ctx.beginPath(); ctx.ellipse(5, 5, 15, 30, 0.2 + (Math.sin(timer*8)*0.05), 0, Math.PI*2); ctx.fill();
-
-  // Big cute Eyes
-  let blink = Math.sin(timer * 3) > 0.95;
-  if (gameState === 'PHASE_COMPLETE') blink = false; // starry eyes
-
-  if (blink) {
-     ctx.strokeStyle = '#222'; ctx.lineWidth = 2;
-     ctx.beginPath(); ctx.moveTo(-10, -10); ctx.lineTo(-2, -10); ctx.stroke();
-  } else {
-     ctx.fillStyle = '#fff';
-     ctx.beginPath(); ctx.ellipse(-10, -10, 8, 11, 0, 0, Math.PI*2); ctx.fill();
-     ctx.beginPath(); ctx.ellipse(6, -12, 6, 9, 0, 0, Math.PI*2); ctx.fill();
-     
-     ctx.fillStyle = '#222';
-     ctx.beginPath(); ctx.ellipse(-12, -10, 5, 8, 0, 0, Math.PI*2); ctx.fill();
-     ctx.beginPath(); ctx.ellipse(4, -12, 4, 7, 0, 0, Math.PI*2); ctx.fill();
-     
-     ctx.fillStyle = '#fff'; // Shines
-     if (gameState === 'PHASE_COMPLETE') {
-         // Starry victory eyes!
-         ctx.font = '8px Arial'; ctx.fillText('✨', -15, -7);
-         ctx.fillText('✨', 1, -9);
-     } else {
-         ctx.beginPath(); ctx.arc(-14, -14, 2.5, 0, Math.PI*2); ctx.fill();
-         ctx.beginPath(); ctx.arc(2, -16, 2, 0, Math.PI*2); ctx.fill();
-     }
-  }
-
-  // Smile
-  ctx.strokeStyle = '#222'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(-15, 10); ctx.quadraticCurveTo(-5, 18, 5, 8); ctx.stroke();
-
-  ctx.restore();
-  ctx.restore();
-}
-
-function drawMenuDogs(timer) {
-  const c1 = document.getElementById('menu-dog-canvas');
-  if (c1 && gameState === 'START') {
-    const ctx1 = c1.getContext('2d');
-    ctx1.clearRect(0, 0, 160, 160);
-    drawLunaMenu(ctx1, 80, 80, 100, timer);
-  }
-  const c2 = document.getElementById('victory-dog-canvas');
-  if (c2 && gameState === 'PHASE_COMPLETE') {
-    const ctx2 = c2.getContext('2d');
-    ctx2.clearRect(0, 0, 160, 160);
-    let bounce = Math.abs(Math.sin(timer * 8) * 15); // jumping!
-    drawLunaMenu(ctx2, 80, 80 + bounce, 100, timer); 
-  }
-}
 
 function typeWriter() {
   if (gameState !== 'START') return;
@@ -418,7 +396,8 @@ setTimeout(typeWriter, 500);
 let game = {
   score: 0,
   phase: 1,
-  lives: 3,
+  lives: 5,
+  continues: 5,
   speed: 250, 
   bgSpeed: 50, 
   bgOffset: 0,
@@ -441,7 +420,8 @@ let player = {
   isJumping: false,
   isFalling: false,
   animTimer: 0,
-  lastShootTime: 0
+  lastShootTime: 0,
+  outfit: 'sailor'
 };
 
 let bullets = [];
@@ -455,6 +435,8 @@ let particles = [];
 let stars = [];
 let mountains = [];
 let decorations = [];
+
+// loadGame removed - to avoid crash due to player.outfit before player is defined
 
 function getTheme(phase) {
   const p = (phase - 1) % 4;
@@ -689,6 +671,12 @@ UI.continueBtn.addEventListener('click', () => {
   nextPhase(); // user continues!
 });
 
+UI.btnYesContinue.addEventListener('click', acceptContinue);
+UI.btnNoContinue.addEventListener('click', rejectContinue);
+
+// menuDogCanvas click removed - element no longer in HTML
+
+
 function jump() {
   if (player.jumpCount < player.maxJumps && !player.isFalling) {
     player.vy = player.jumpPower; 
@@ -703,7 +691,8 @@ function startGame() {
   gameState = 'PLAYING';
   game.score = 0;
   game.phase = 1;
-  game.lives = 3;
+  game.lives = 5;
+  game.continues = 5;
   resetPhase();
   UI.startScreen.classList.add('hidden');
   UI.gameOverScreen.classList.add('hidden');
@@ -747,6 +736,7 @@ function nextPhase() {
     resetPhase();
     gameState = 'PLAYING';
     if(UI.phaseTransition) UI.phaseTransition.classList.add('hidden');
+    saveGame();
   }, 2500); 
 }
 
@@ -758,12 +748,7 @@ function die() {
   createExplosion(player.x, player.y - player.height/2, '#f00', 40);
   
   if (game.lives <= 0) {
-    gameState = 'GAMEOVER';
-    UI.finalScore.innerText = game.score;
-    setTimeout(() => {
-      UI.gameOverScreen.classList.remove('hidden');
-    }, 1000);
-    stopBGM();
+    showContinueScreen();
   } else {
     player.x = -100; 
     setTimeout(() => {
@@ -777,6 +762,7 @@ function die() {
       }
     }, 1000);
   }
+  updateUI();
 }
 
 function shoot() {
@@ -809,6 +795,7 @@ function updateUI() {
   UI.score.innerText = game.score;
   UI.phase.innerText = game.phase;
   UI.lives.innerText = Math.max(0, game.lives);
+  if (UI.continuesLeftText) UI.continuesLeftText.innerText = game.continues;
 }
 
 function createExplosion(x, y, color, count) {
@@ -1207,6 +1194,112 @@ function update(dt) {
 }
 
 // DRAW FUNCTIONS
+function drawLunaMenu(ctx, x, y, size, timer) {
+  if (menuDogImg.complete && menuDogImg.naturalWidth > 0) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(size/100, size/100);
+    // Draw the image instead of procedural
+    ctx.drawImage(menuDogImg, -80, -80, 160, 160);
+    ctx.restore();
+    return;
+  }
+  
+  // Fallback to procedural if image not loaded
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(size/100, size/100);
+
+  // Wag tail
+  const wag = Math.sin(timer * 20) * 0.4;
+  ctx.save();
+  ctx.translate(25, -5);
+  ctx.rotate(wag + 0.3);
+  ctx.fillStyle = '#833d1a'; // Dark brown
+  ctx.beginPath();
+  ctx.ellipse(0, -15, 6, 20, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+
+  // Back legs
+  ctx.fillStyle = '#6b3216';
+  ctx.beginPath(); ctx.ellipse(-15, 20, 7, 12, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(15, 20, 7, 12, 0, 0, Math.PI*2); ctx.fill();
+
+  // Long Body
+  ctx.fillStyle = '#af582c'; // light brown
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 35, 24, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // Front legs
+  ctx.beginPath(); ctx.ellipse(-20, 22, 7, 12, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(20, 22, 7, 12, 0, 0, Math.PI*2); ctx.fill();
+
+  // Paws
+  ctx.fillStyle = '#6b3216';
+  ctx.beginPath(); ctx.ellipse(-22, 28, 9, 5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(22, 28, 9, 5, 0, 0, Math.PI*2); ctx.fill();
+
+  // Head Base
+  ctx.save();
+  ctx.translate(-25, -20);
+  ctx.rotate(0); // slight head wobble while talking
+
+  // Back ear
+  ctx.fillStyle = '#6b3216';
+  ctx.beginPath(); ctx.ellipse(18, 5, 12, 28, -0.2, 0, Math.PI*2); ctx.fill();
+
+  // Head
+  ctx.fillStyle = '#af582c';
+  ctx.beginPath(); ctx.ellipse(0, -5, 22, 20, 0, 0, Math.PI*2); ctx.fill();
+
+  // Snout
+  ctx.beginPath(); ctx.ellipse(-15, 5, 16, 12, -0.2, 0, Math.PI*2); ctx.fill();
+
+  // Black nose
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.ellipse(-27, 2, 8, 6, -0.2, 0, Math.PI*2); ctx.fill();
+
+  // Front ear (floppy)
+  ctx.fillStyle = '#6b3216';
+  ctx.beginPath(); ctx.ellipse(5, 5, 15, 30, 0.2 + (Math.sin(timer*8)*0.05), 0, Math.PI*2); ctx.fill();
+
+  // Big cute Eyes (OLHO BRANCO)
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.ellipse(-10, -10, 8, 11, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(6, -12, 6, 9, 0, 0, Math.PI*2); ctx.fill();
+  
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.ellipse(-12, -10, 5, 8, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(4, -12, 4, 7, 0, 0, Math.PI*2); ctx.fill();
+  
+  ctx.fillStyle = '#fff'; // Shines
+  ctx.beginPath(); ctx.arc(-14, -14, 2.5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(2, -16, 2, 0, Math.PI*2); ctx.fill();
+
+  // Smile
+  ctx.strokeStyle = '#222'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(-15, 10); ctx.quadraticCurveTo(-5, 18, 5, 8); ctx.stroke();
+
+  ctx.restore();
+  ctx.restore();
+}
+
+function drawMenuDogs(timer) {
+  if (UI.menuDogCanvas && gameState === 'START') {
+    const ctx1 = UI.menuDogCanvas.getContext('2d');
+    ctx1.clearRect(0, 0, 160, 160);
+    drawLunaMenu(ctx1, 80, 80, 100, timer);
+  }
+  if (UI.victoryDogCanvas && gameState === 'PHASE_COMPLETE') {
+    const ctx2 = UI.victoryDogCanvas.getContext('2d');
+    ctx2.clearRect(0, 0, 160, 160);
+    let bounce = Math.abs(Math.sin(timer * 8) * 15);
+    drawLunaMenu(ctx2, 80, 80 + bounce, 100, timer); 
+  }
+}
+
 function drawDog(ctx, x, y, width, height, timer, isJumping, isFalling) {
   const drawY = y + 20; // Anchor on dirt
 
@@ -1232,6 +1325,34 @@ function drawDog(ctx, x, y, width, height, timer, isJumping, isFalling) {
   ctx.shadowBlur = 0; 
   ctx.shadowOffsetY = 0;
 
+  // Tuxedo for 'suit' outfit
+  if (player.outfit === 'suit') {
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.moveTo(-width/2, -height - 5);
+    ctx.lineTo(0, -5);
+    ctx.lineTo(width/2, -height - 5);
+    ctx.lineTo(width/2, 0);
+    ctx.lineTo(-width/2, 0);
+    ctx.fill();
+    
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.moveTo(-10, -height - 2);
+    ctx.lineTo(0, -10);
+    ctx.lineTo(10, -height - 2);
+    ctx.fill();
+    
+    // Bow tie
+    ctx.fillStyle = '#f00';
+    ctx.beginPath();
+    ctx.moveTo(-5, -height + 2);
+    ctx.lineTo(5, -height + 10);
+    ctx.lineTo(-5, -height + 10);
+    ctx.lineTo(5, -height + 2);
+    ctx.fill();
+  }
+
   const headGrad = ctx.createRadialGradient(width/2 + 5, -height - 17, 0, width/2 + 5, -height - 17, 30);
   headGrad.addColorStop(0, '#f08954');
   headGrad.addColorStop(1, '#8B4513');
@@ -1241,22 +1362,35 @@ function drawDog(ctx, x, y, width, height, timer, isJumping, isFalling) {
   ctx.roundRect(width/2 - 10, -height - 30, 30, 25, 12);
   ctx.fill();
 
-  // Pink Sailor Hat
-  ctx.save();
-  ctx.translate(width/2 + 5, -height - 30);
-  ctx.rotate(-0.1);
-  ctx.shadowColor = 'rgba(0,0,0,0.5)';
-  ctx.shadowBlur = 5;
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.arc(0, 0, 12, Math.PI, 0); 
-  ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = '#ff69b4'; 
-  ctx.fillRect(-15, -2, 30, 4);
-  ctx.fillStyle = '#ff1493';
-  ctx.fillRect(-5, -12, 10, 2);
-  ctx.restore();
+  // Hats
+  if (player.outfit === 'sailor') {
+    // Pink Sailor Hat
+    ctx.save();
+    ctx.translate(width/2 + 5, -height - 30);
+    ctx.rotate(-0.1);
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 5;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(0, 0, 12, Math.PI, 0); 
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#ff69b4'; 
+    ctx.fillRect(-15, -2, 30, 4);
+    ctx.fillStyle = '#ff1493';
+    ctx.fillRect(-5, -12, 10, 2);
+    ctx.restore();
+  } else if (player.outfit === 'suit') {
+    // Elegant Black Hat
+    ctx.save();
+    ctx.translate(width/2 + 10, -height - 35);
+    ctx.fillStyle = '#222';
+    ctx.fillRect(-15, 0, 30, 5); // Brim
+    ctx.fillRect(-10, -15, 20, 15); // Top
+    ctx.fillStyle = '#f00'; // Red ribbon
+    ctx.fillRect(-10, -5, 20, 3);
+    ctx.restore();
+  }
   
   ctx.fillStyle = headGrad;
   ctx.beginPath();
@@ -1941,8 +2075,14 @@ function gameLoop(timestamp) {
   const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
   lastTime = timestamp;
 
-  update(dt);
-  render();
+  try {
+    drawMenuDogs(timestamp / 1000);
+    update(dt);
+    render();
+  } catch(err) {
+    if (UI.score) UI.score.innerText = 'LOOP_ERR: ' + err.message;
+    console.error("Game Loop Error:", err);
+  }
 
   requestAnimationFrame(gameLoop);
 }
