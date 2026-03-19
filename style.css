@@ -306,78 +306,54 @@ p {
   }
 }
 
-/* Layout landscape para celular - reorganiza tela inicial */
+/* Layout landscape para celular */
 @media (max-height: 500px) and (orientation: landscape) {
-  .screen {
-    overflow: hidden;
-    padding: 5px;
-  }
 
-  /* Tela inicial em landscape: título + luna lado a lado com botão */
-  #start-screen {
-    flex-direction: row !important;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    padding: 5px 15px;
-  }
-
-  .title-3d {
-    font-size: 20px !important;
-    margin-bottom: 0;
-    margin-right: 10px;
-    flex-shrink: 0;
-    animation: none; /* desabilita pulsação para performance */
-  }
-
-  .luna-dialog {
-    flex-direction: row !important; /* bolha à esquerda, imagem à direita */
-    align-items: center;
-    margin: 0;
-    gap: 8px;
-    animation: none;
-  }
-
-  .luna-dialog .bubble {
-    font-size: 11px !important;
-    min-height: 30px;
-    padding: 5px 10px;
-    max-width: 180px;
-    margin-bottom: 0;
-  }
-  
-  /* Seta do balão aponta para o lado */
-  .luna-dialog .bubble::after {
-    bottom: 50%;
-    left: auto;
-    right: -10px;
-    transform: translateY(50%);
-    border-width: 8px 0 8px 10px;
-    border-color: transparent transparent transparent white;
-  }
-
-  .luna-dialog .menu-dog-anim {
-    width: 70px !important;
-    height: 70px !important;
-  }
-
-  .controls {
+  /* Esconde tudo na tela inicial exceto a Luna */
+  #start-screen .title-3d,
+  #start-screen .bubble,
+  #start-screen .controls,
+  #start-screen #start-btn {
     display: none !important;
   }
 
-  .btn {
-    margin-top: 0;
-    padding: 8px 20px;
-    font-size: 13px;
+  /* Luna fica grande e centralizada como botão */
+  #start-screen {
+    justify-content: center;
+    align-items: center;
   }
 
-  /* Tela de phase complete e continue em landscape */
-  #phase-complete-screen .luna-dialog,
-  #phase-transition .luna-dialog {
-    flex-direction: row !important;
-    gap: 8px;
+  #start-screen .luna-dialog {
+    flex-direction: column;
+    align-items: center;
     animation: none;
+    margin: 0;
+  }
+
+  #start-screen .luna-dialog::after {
+    content: 'TOQUE PARA COMEÇAR';
+    font-family: 'Righteous', cursive;
+    font-size: 14px;
+    color: #ffea00;
+    text-shadow: 0 0 10px #ffea00;
+    margin-top: 8px;
+    animation: blinkGlow 1s infinite alternate;
+  }
+
+  #start-screen .menu-dog-anim {
+    width: 140px !important;
+    height: 140px !important;
+    cursor: pointer;
+    filter: drop-shadow(0 0 20px #ffea00) drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+    transition: transform 0.1s;
+  }
+
+  #start-screen .menu-dog-anim:active {
+    transform: scale(0.9);
+  }
+
+  .phase-text {
+    font-size: 40px;
   }
 
   #phase-complete-screen .menu-dog-anim,
@@ -385,10 +361,11 @@ p {
     width: 60px !important;
     height: 60px !important;
   }
+}
 
-  .phase-text {
-    font-size: 40px;
-  }
+@keyframes blinkGlow {
+  0%   { opacity: 0.5; text-shadow: 0 0 5px #ffea00; }
+  100% { opacity: 1;   text-shadow: 0 0 20px #ffea00, 0 0 40px #ff8c00; }
 }
 
 /* ===== TELA DE ROTAÇÃO ===== */

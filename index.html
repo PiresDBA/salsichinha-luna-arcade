@@ -134,6 +134,17 @@
 
       setupTouchControls();
 
+      // Celular: toque na Luna para iniciar o jogo
+      const lunaImg = document.getElementById('menu-dog-img');
+      const startBtn = document.getElementById('start-btn');
+      if (lunaImg && startBtn) {
+        lunaImg.addEventListener('click', () => startBtn.click());
+        lunaImg.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          startBtn.click();
+        }, { passive: false });
+      }
+
       // Orientação: mostra aviso se portrait
       function checkOrientation() {
         const isPortrait = window.innerHeight > window.innerWidth;
