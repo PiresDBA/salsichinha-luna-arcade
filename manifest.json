@@ -2,7 +2,7 @@
   "name": "Salsichinha Luna Arcade",
   "short_name": "Luna Arcade",
   "description": "Ajude a Luna Salsicha a resgatar seus amiguinhos!",
-  "start_url": "/",
+  "start_url": "./",
   "display": "fullscreen",
   "orientation": "landscape",
   "background_color": "#090a0f",
