@@ -306,6 +306,91 @@ p {
   }
 }
 
+/* Layout landscape para celular - reorganiza tela inicial */
+@media (max-height: 500px) and (orientation: landscape) {
+  .screen {
+    overflow: hidden;
+    padding: 5px;
+  }
+
+  /* Tela inicial em landscape: título + luna lado a lado com botão */
+  #start-screen {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 15px;
+  }
+
+  .title-3d {
+    font-size: 20px !important;
+    margin-bottom: 0;
+    margin-right: 10px;
+    flex-shrink: 0;
+    animation: none; /* desabilita pulsação para performance */
+  }
+
+  .luna-dialog {
+    flex-direction: row !important; /* bolha à esquerda, imagem à direita */
+    align-items: center;
+    margin: 0;
+    gap: 8px;
+    animation: none;
+  }
+
+  .luna-dialog .bubble {
+    font-size: 11px !important;
+    min-height: 30px;
+    padding: 5px 10px;
+    max-width: 180px;
+    margin-bottom: 0;
+  }
+  
+  /* Seta do balão aponta para o lado */
+  .luna-dialog .bubble::after {
+    bottom: 50%;
+    left: auto;
+    right: -10px;
+    transform: translateY(50%);
+    border-width: 8px 0 8px 10px;
+    border-color: transparent transparent transparent white;
+  }
+
+  .luna-dialog .menu-dog-anim {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  .controls {
+    display: none !important;
+  }
+
+  .btn {
+    margin-top: 0;
+    padding: 8px 20px;
+    font-size: 13px;
+  }
+
+  /* Tela de phase complete e continue em landscape */
+  #phase-complete-screen .luna-dialog,
+  #phase-transition .luna-dialog {
+    flex-direction: row !important;
+    gap: 8px;
+    animation: none;
+  }
+
+  #phase-complete-screen .menu-dog-anim,
+  #phase-transition .menu-dog-anim {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .phase-text {
+    font-size: 40px;
+  }
+}
+
 /* ===== TELA DE ROTAÇÃO ===== */
 #rotate-screen {
   display: none; /* Controlado por JS */
