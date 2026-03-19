@@ -18,6 +18,15 @@
       <div id="yt-player"></div>
     </div>
     
+    <!-- TELA DE ROTAÇÃO -->
+    <div id="rotate-screen">
+      <div id="rotate-content">
+        <div id="rotate-icon">📱</div>
+        <h2>Vire o celular!</h2>
+        <p>O jogo funciona melhor na horizontal 🐕</p>
+      </div>
+    </div>
+
     <div id="game-container">
       <canvas id="gameCanvas" width="800" height="600"></canvas>
       <div id="ui-layer">
@@ -124,6 +133,20 @@
       }
 
       setupTouchControls();
+
+      // Orientação: mostra aviso se portrait
+      function checkOrientation() {
+        const isPortrait = window.innerHeight > window.innerWidth;
+        const rotateScreen = document.getElementById('rotate-screen');
+        if (rotateScreen) {
+          rotateScreen.style.display = isPortrait ? 'flex' : 'none';
+        }
+      }
+      checkOrientation();
+      window.addEventListener('resize', checkOrientation);
+      window.addEventListener('orientationchange', () => {
+        setTimeout(checkOrientation, 300);
+      });
     </script>
   </body>
 </html>
