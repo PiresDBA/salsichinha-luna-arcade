@@ -6,7 +6,18 @@ Este arquivo foi criado para te ajudar a entender as últimas mudanças feitas n
 
 ## 🛠 Nossos Últimos Commits Recentes
 
-**ATENÇÃO:** Nós acabamos de criar uma **Branch Nova** (um mundo paralelo) chamada `feat/novas-fases-animais`. Você não está mais no `master`! 
+**ATENÇÃO:** Nós acabamos de criar uma **Branch Nova Segunda** chamada `correcoes-finais-animais`!
+
+### Branch: `correcoes-finais-animais` (A MAIS NOVA E PERFEITA)
+- **O que mudou:** `main.js`.
+- **Detalhes:**  
+  - **Urubu Apenas:** Só tem o Urubu `🐦‍⬛` sequestrando os bichinhos pra tirar a mosca e morcego chatos da tela.
+  - **Sem frutos do mar:** Remoção do Camarão, Lagosta e Minhoca. Apenas Zoológico Terrestre puro da cabeça aos pés.
+  - **Fim da Caixa de Presentes:** O que cai do céu pros Bulldogs são mísseis/torpedinhos `🚀` que fazem total sentido com a explosão.
+  - **Fim da Mutação Animal:** Os gatinhos e zebras presos, quando atingem o paraquedas, conservam o próprio corpo correto (Gato é Gato, Zebra é Zebra) e não há mais mutações em que todo mundo vira o bicho original Macaco!
+  - **Como voltar para antes disso:** `git checkout master`
+
+---
 
 ### Branch: `feat/novas-fases-animais`
 - **`5f5f12a`** - **10 Fases Novas & Zoológico Completo:**

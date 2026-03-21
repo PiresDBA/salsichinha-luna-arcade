@@ -1069,8 +1069,8 @@ function update(dt) {
   }
   if (Math.random() < baseEnemyChance) { 
     if (enemies.length < maxEnemies) { 
-      const types = ['🦦','🦞','🦐','🪱','🐈','🐒','🕊️','🦁','🐯','🐘','🦓','🐻','🦒','🐼','🐨','🦘','🐧','🦏','🦛','🦍','🐢','🐊','🐍','🐪', '🦓', '🐆', '🦥'];
-      const badTypes = ['🦇', '🦅', '🪰'];
+      const types = ['🦦','🐈','🐒','🕊️','🦁','🐯','🐘','🦓','🐻','🦒','🐼','🐨','🦘','🐧','🦏','🦛','🦍','🐢','🐊','🐍','🐪', '🐆', '🦥'];
+      const badTypes = ['🐦‍⬛'];
       enemies.push({ 
         x: canvas.width + 50, 
         y: 40 + Math.random() * 180, 
@@ -1811,7 +1811,7 @@ function drawAnimal(ctx, x, y, type, timer, badType) {
   ctx.shadowColor = 'rgba(0,0,0,0.5)';
   ctx.shadowBlur = 10;
 
-  if (badType !== '🦅') {
+  if (badType !== '🐦‍⬛') {
      const flap = Math.sin(timer * 40) * 0.3; // rapid rocking wings
      ctx.rotate(flap);
   } else {
@@ -2104,7 +2104,7 @@ function render() {
     ctx.textBaseline = 'middle';
     ctx.shadowColor = 'rgba(0,0,0,0.6)';
     ctx.shadowBlur = 10;
-    ctx.fillText('🎁', b.x, b.y); 
+    ctx.fillText('🚀', b.x, b.y); 
     ctx.shadowBlur = 0;
   }
 
@@ -2117,13 +2117,7 @@ function render() {
     ctx.shadowColor = 'rgba(0,0,0,0.5)';
     ctx.shadowBlur = 5;
     ctx.fillText('🪂', 0, -40); 
-    if (sa.type === 'cat') ctx.fillText('🐈', 0, 0); 
-    else if (sa.type === 'marmota') ctx.fillText('🦦', 0, 0); 
-    else if (sa.type === 'lagosta') ctx.fillText('🦞', 0, 0); 
-    else if (sa.type === 'camarao') ctx.fillText('🦐', 0, 0); 
-    else if (sa.type === 'lombriz') ctx.fillText('🪱', 0, 0); 
-    else if (sa.type === 'dove') ctx.fillText('🕊️', 0, 0); 
-    else ctx.fillText('🐒', 0, 0); 
+    ctx.fillText(sa.type, 0, 0); 
     ctx.restore();
   }
 
