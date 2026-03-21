@@ -6,44 +6,31 @@ Este arquivo foi criado para te ajudar a entender as últimas mudanças feitas n
 
 ## 🛠 Nossos Últimos Commits Recentes
 
-**ATENÇÃO:** Nós acabamos de criar uma **Terceira Branch Nova** chamada `feat/novos-chefes`!
+**ATENÇÃO:** Nós acabamos de JUNTAR TUDO (Merge) na **Branch Principal `master`**! Tudo o que fizemos nas branches separadas agora faz parte oficialmente do jogo para todos.
 
-### Branch: `feat/novos-chefes` (A EXPANSÃO DOS CHEFÕES)
-- **O que mudou:** `main.js`.
-- **Detalhes:**  
-  - **Dobro de Chefões:** Expandimos de 5 para 10 os Medos do Final da Fase para parear com a quantidade nova de cenários.
-  - **Novos Inimigos Finais:** Foram adicionados e desenhados:
-    1. `🦤` **A Gaivota Bobona:** Voa fazendo vento. E é a única com os olhos bobões originais ("Vesga").
-    2. `🐺` **O Cachorrão Negro:** Usa latidos misturados de forma monstruosa com sons graves do motor do carro para assustar.
-    3. `🧹` **A Vassoura:** Tomou a vassoura de volta do aspirador, com um som seco de ar varrendo! (Obs: O Aspirador virou um Imã Gigante `🧲` para representar puxão magnético/sucção visualmente).
-    4. `🎇` **Fogos de Artifício:** Soltando estrondos baseados no gerador de tempestades.
-    5. `🚿` **Mangueira de Banho:** Jorrando águas caoticamente sob a forma espalhada pelo vento.
-  - **Para Testar Só Ela (Agora!):** `git checkout feat/novos-chefes`
-  - **Como voltar pro Master oficial:** `git checkout master`
+### Branch Autal: `master`
+Aqui estão as mudanças antigas e novas, que agora formam a **base segura e final** do jogo.
+
+### 1. `Atualização de Cache do PWA para v6 (O Merge Final)`
+- **O que mudou:** Apenas o arquivo `sw.js`. O `CACHE_NAME` passou para v6.
+- **Por que:** Força o celular de todo mundo a baixar instantaneamente as 10 novas fases, o novo zoológico, e os 10 novos chefes (Gaivota, Cachorrão, Vassoura, Fogos, Mangueira) que acabamos de adicionar.
 
 ---
 
-### Branch: `correcoes-finais-animais` (A MAIS NOVA E PERFEITA)
-- **O que mudou:** `main.js`.
-- **Detalhes:**  
-  - **Urubu Apenas:** Só tem o Urubu `🐦‍⬛` sequestrando os bichinhos pra tirar a mosca e morcego chatos da tela.
-  - **Sem frutos do mar:** Remoção do Camarão, Lagosta e Minhoca. Apenas Zoológico Terrestre puro da cabeça aos pés.
-  - **Fim da Caixa de Presentes:** O que cai do céu pros Bulldogs são mísseis/torpedinhos `🚀` que fazem total sentido com a explosão.
-  - **Fim da Mutação Animal:** Os gatinhos e zebras presos, quando atingem o paraquedas, conservam o próprio corpo correto (Gato é Gato, Zebra é Zebra) e não há mais mutações em que todo mundo vira o bicho original Macaco!
-  - **Como voltar para antes disso:** `git checkout master`
+### *Histórico das Branches que foram Mescladas (Merges Anteriores)*
+
+### Branch de Destaque: `feat/novos-chefes`
+- **Detalhes:** Expandimos de 5 para 10 os Medos do Final da Fase (Gaivota Bobona `🦤`, Cachorrão `🐺`, Vassoura `🧹`, Fogos `🎇`, Mangueira `🚿`).
+
+### Branch de Polimento: `correcoes-finais-animais`
+- **Detalhes:** Remoção de furtos do mar. Apenas `🐦‍⬛` (Urubu) sequestra os animais. O que cai do céu pros Bulldogs são mísseis/torpedinhos `🚀`. Animais não viram macacos aleatórios no resgate.
+
+### Branch de Expansão: `feat/novas-fases-animais`
+- **Detalhes:** Adicionadas 6 novas fases além das 4 antigas (Marte, Vênus, Alto Mar, Cidade, Selva e Era do Gelo) e mais de 20 novos bichos puxados por emojis.
 
 ---
 
-### Branch: `feat/novas-fases-animais`
-- **`5f5f12a`** - **10 Fases Novas & Zoológico Completo:**
-  - **Expandiu Fases:** Adicionadas 6 novas fases além das 4 antigas. O jogo passa por: Floresta, Montanha, Lua, Alien, Marte, Vênus, Alto Mar (com barcos navegando), Cidade (com trânsito de fundo), Selva Tropical (cipós) e Era do Gelo.
-  - **Dezenas de Animais:** Refatorei o código pesado de desenho dos animais para usar os emojis de coração puramente direto na fonte do jogo. Agora você está resgatando Quase Todo o Zoológico (Leões, Coalas, Pinguins, Girafas, etc).
-  - **Como voltar para antes disso (pro Master):** Digite `git checkout master`.
-
----
-
-### Branch: `master`
-Aqui estão as mudanças antigas, que agora formam a **base segura** do jogo.
+### *Histórico de Commits Antigos do Master*
 
 ### 1. `b5ad1ce` - Atualização de Cache do PWA para v4
 - **O que mudou:** Apenas o arquivo `sw.js`. O `CACHE_NAME` passou de v3 para v4.
