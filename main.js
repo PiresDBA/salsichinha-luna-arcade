@@ -20,7 +20,10 @@ const UI = {
   continuesLeftText: document.getElementById('continues-left'),
   continueTimerText: document.getElementById('continue-timer'),
   difficultySelect: document.getElementById('difficulty-select'),
-  highScoresList: document.getElementById('high-scores-list')
+  highScoresList: document.getElementById('high-scores-list'),
+  playerNameInput: document.getElementById('player-name'),
+  saveScoreBtn: document.getElementById('save-score-btn'),
+  recordInputContainer: document.getElementById('record-input-container')
 };
 
 // --- IMAGE ASSETS ---
@@ -73,7 +76,7 @@ function rejectContinue() {
 function triggerGameOver() {
   gameState = 'GAMEOVER';
   UI.finalScore.innerText = game.score;
-  updateHighScores(game.score);
+  UI.recordInputContainer.style.display = 'block'; // mostra pra digitar o nome
   renderHighScores();
   setTimeout(() => {
     UI.gameOverScreen.classList.remove('hidden');
@@ -82,9 +85,10 @@ function triggerGameOver() {
   saveGame();
 }
 
-function updateHighScores(newScore) {
+function updateHighScores(newScore, playerName) {
     let scores = JSON.parse(localStorage.getItem('luna_high_scores')) || [];
-    scores.push({ score: newScore, date: new Date().toLocaleDateString('pt-BR') });
+    const pName = playerName ? playerName.trim().substring(0, 10) : "ANÔNIMO";
+    scores.push({ name: pName, score: newScore, date: new Date().toLocaleDateString('pt-BR') });
     scores.sort((a, b) => b.score - a.score);
     scores = scores.slice(0, 5); // top 5
     localStorage.setItem('luna_high_scores', JSON.stringify(scores));
@@ -95,8 +99,8 @@ function renderHighScores() {
     if (UI.highScoresList) {
         UI.highScoresList.innerHTML = scores.map((s, i) => `
             <div style="display: flex; justify-content: space-between; border-bottom: 1px dotted rgba(255,255,255,0.3); padding: 5px 0;">
-                <span>${i + 1}º - ${s.score} pts</span>
-                <span style="font-size: 10px; opacity: 0.6;">${s.date}</span>
+                <span style="font-weight:bold; color:#ffcc00">${i + 1}º ${s.name || '---'}</span>
+                <span>${s.score} pts</span>
             </div>
         `).join('') || '<p style="text-align:center; opacity:0.5;">Nenhum recorde ainda!</p>';
     }
@@ -818,6 +822,11 @@ UI.continueBtn.addEventListener('click', () => {
 
 UI.btnYesContinue.addEventListener('click', acceptContinue);
 UI.btnNoContinue.addEventListener('click', rejectContinue);
+UI.saveScoreBtn.addEventListener('click', () => {
+    updateHighScores(game.score, UI.playerNameInput.value);
+    renderHighScores();
+    UI.recordInputContainer.style.display = 'none'; // esconde após salvar
+});
 
 // menuDogCanvas click removed - element no longer in HTML
 
@@ -842,6 +851,7 @@ function startGame() {
   resetPhase();
   UI.startScreen.classList.add('hidden');
   UI.gameOverScreen.classList.add('hidden');
+  UI.playerNameInput.value = ''; // limpa o nome anterior
   if(UI.phaseTransition) UI.phaseTransition.classList.add('hidden');
   
   startBGM(); 

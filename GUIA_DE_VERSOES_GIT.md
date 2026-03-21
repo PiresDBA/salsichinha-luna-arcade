@@ -11,21 +11,14 @@ Este arquivo foi criado para te ajudar a entender as últimas mudanças feitas n
 ### Branch Atual: `master`
 Aqui está a **base segura e final** do jogo neste momento.
 
-### 1. `Atualização de Cache do PWA para v13 (Recordes e Perigos)`
-- **O que mudou:** `sw.js` agora para **v13**.
-- **Novidades de Jogabilidade:**
-  1. **Tabela de Recordes (High Scores):** Agora o jogo salva localmente os seus **5 melhores placares**! Sempre que você der Game Over, verá a lista dos recordistas com a data da proeza!
-  2. **A Geometria das Fases:** O terreno agora respeita regras fixas de inclinação:
-     - Fases 1 e 2: Retas.
-     - Fase 3: Oscilando livre.
-     - Fase 4: **Apenas Subida!** (Morro acima direto).
-     - Fase 5: **Apenas Descida!** (Ladeira abaixo).
-     - Fase 6+: Montanha-russa completa (sobe e desce).
-  3. **O Mergulho da Gaivota:** Cuidado! A Gaivota Bobona agora **ataca de verdade!** A cada poucos segundos ela abre o bico e mergulha em direção ao chão para tentar morder a Luna! Se ela encostar em você, é derrota imediata! Desvie e atire petiscos enquanto ela estiver em mergulho!
+### 1. `Atualização de Cache do PWA para v14 (Identidade nos Recordes)`
+- **O que mudou:** `sw.js` agora para **v14**.
+- **Novidade Principal:** Agora você pode **digitar o seu nome (máximo 10 letras)** quando bater um recorde! 
+- Ao final de cada partida, aparecerá um campo para você se identificar. Basta clicar em "Salvar Recorde" e seu nome ficará imortalizado no Top 5 de recordistas locais do jogo!
 
 ---
 
-### 2. `Atualização de Cache do PWA para v12 (O Som do Urubu/Corvo)`
+### 2. `Atualização de Cache do PWA para v13 (Recordes e Perigos)`
   1. **Novos Chefes nas Primeiras Fases:** Agora a Gaivota será a Fase 1! O Cachorrão (Fase 2). A Vassoura, os Fogos e a Mangueira fecham as Fases 3, 4 e 5! 
   2. **Ilda, o Cão (A Vida Real):** O temido chefe Cachorrão deixou de ser apenas a "cara do lobo flutuante" num emoji de lua cheia! Eu tirei do céu e a coloquei **nas telas/chão**. Desenhei programaticamente a "ILDA O CÃO", um gigantesco vira-lata de lona preta, com focinho feio e agressivo, olho vermelho malvado, babando entre os dentes afiados!
   3. **A Ilda Te Persegue no Chão:** Sendo o primeiro chefe focado em combate de solo (Melee), a Ilda não fica oscilando entre as nuvens lançando bombas. Ela cai literalmente com quatro patas no asfalto e **corre de frente a frente pela tela para te caçar!** A colisão dela fará o cachorro dar Game Over! Corra dela e atire petiscos para vencê-la!
