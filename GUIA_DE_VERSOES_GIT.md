@@ -6,7 +6,17 @@ Este arquivo foi criado para te ajudar a entender as últimas mudanças feitas n
 
 ## 🛠 Nossos Últimos Commits Recentes
 
-**ATENÇÃO:** Nós acabamos de JUNTAR TUDO (Merge) de novo na **Branch Principal `master`**! Tudo o que fizemos na última branch de Polimento (Corpos, Animações e Torpedo) agora faz parte oficialmente do jogo.
+**ATENÇÃO:** Nós acabamos de criar a **Quinta Branch Nova** chamada `feat/urubu-desenhado`!
+
+### Branch: `feat/urubu-desenhado` (O URUBU ESTILO CARTOON)
+- **O que mudou:** `main.js`.
+- **Detalhes:**  
+  - **Deletado o Emoji:** Achei que só um emoji de Urubu (`🐦‍⬛`) não daria a cara de "vilão louco e malvado" que você pediu puxando a referência do desenho. 
+  - **Desenho Manual no Canvas:** Desenhei passo-a-passo (com curvas, linhas e preenchimento procedural de pintura) um Urubu gigante idêntico ao seu desenho! Ele possui o corpo corcunda, colar de penas brancas no pescoço longo, pele rosa na cabeça, um olho furioso com sobrancelha grossa e um bicaço laranja puxado! Asinhas batendo freneticamente!
+  - **Para Testar Só Ela (Agora!):** `git checkout feat/urubu-desenhado`
+  - **Como voltar pro Master oficial:** `git checkout master`
+
+---
 
 ### Branch Atual: `master`
 Aqui está a **base segura e final** do jogo neste momento.

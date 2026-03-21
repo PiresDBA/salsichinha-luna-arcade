@@ -1814,6 +1814,109 @@ function drawBulldog(ctx, x, y, width, height, timer, state) {
   }
 }
 
+function drawUrubu(ctx, flap) {
+  ctx.save();
+  ctx.translate(0, -35); // Centro do Pássaro
+
+  // Corpo principal escuro (corcunda)
+  ctx.fillStyle = '#333b47';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 22, 28, 0.2, 0, Math.PI*2);
+  ctx.fill();
+
+  // Asas batendo
+  ctx.save();
+  ctx.translate(-15, -5);
+  ctx.rotate(-flap - 0.3);
+  ctx.fillStyle = '#1c2026';
+  ctx.beginPath(); ctx.ellipse(-5, 15, 12, 35, 0.4, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(15, -5);
+  ctx.rotate(flap + 0.3);
+  ctx.fillStyle = '#1c2026';
+  ctx.beginPath(); ctx.ellipse(5, 15, 12, 35, -0.4, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  // Colar fofinho de plumas brancas
+  ctx.fillStyle = '#f0f0f0';
+  ctx.beginPath();
+  ctx.arc(0, -20, 16, 0, Math.PI*2);
+  ctx.arc(-12, -15, 14, 0, Math.PI*2);
+  ctx.arc(12, -15, 14, 0, Math.PI*2);
+  ctx.arc(0, -10, 14, 0, Math.PI*2);
+  ctx.fill();
+
+  // Pescoço comprido rosa
+  ctx.save();
+  ctx.strokeStyle = '#ffaec9'; 
+  ctx.lineWidth = 14;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(0, -20);
+  ctx.quadraticCurveTo(-15, -35, -10, -50); 
+  ctx.stroke();
+  
+  // Rugas no pescoço
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#d6859e';
+  ctx.beginPath(); ctx.moveTo(-6, -26); ctx.lineTo(0, -24); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-10, -33); ctx.lineTo(-4, -30); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-12, -43); ctx.lineTo(-6, -41); ctx.stroke();
+  ctx.restore();
+
+  // Cabeça rosa
+  ctx.save();
+  ctx.translate(-14, -54);
+  ctx.fillStyle = '#ffaec9';
+  ctx.beginPath(); ctx.ellipse(0, 0, 14, 12, -0.2, 0, Math.PI*2); ctx.fill();
+  
+  // Bico Laranja Gigante Adunco
+  ctx.fillStyle = '#ff8800';
+  ctx.beginPath();
+  ctx.moveTo(8, -2);
+  ctx.quadraticCurveTo(25, -10, 20, 15); 
+  ctx.quadraticCurveTo(5, 10, 2, 2); 
+  ctx.fill();
+  
+  ctx.fillStyle = '#cc5500';
+  ctx.beginPath();
+  ctx.moveTo(5, 3);
+  ctx.quadraticCurveTo(15, 12, 12, 8);
+  ctx.fill();
+
+  // Olho grande meio para fora (estilo maluco)
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(4, -8, 7, 0, Math.PI*2); ctx.fill();
+  
+  // Pupila raivosa
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(6, -8, 2, 0, Math.PI*2); ctx.fill();
+  
+  // Sobrancelha malvada e grossa
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = '#222';
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-5, -14); ctx.lineTo(12, -10); ctx.stroke();
+
+  // Cabelinhos da careca
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(-5, -12); ctx.lineTo(-8, -20); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-2, -12); ctx.lineTo(0, -22); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(2, -12); ctx.lineTo(6, -18); ctx.stroke();
+
+  ctx.restore(); 
+
+  // Garras amarelas
+  ctx.fillStyle = '#ffcc00';
+  ctx.beginPath(); ctx.ellipse(-6, 25, 6, 4, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, 25, 4, 6, -0.5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(6, 25, 6, 4, 0, 0, Math.PI*2); ctx.fill();
+
+  ctx.restore();
+}
+
 function drawAnimal(ctx, x, y, type, timer, badType) {
   ctx.save();
   ctx.translate(x, y + Math.sin(timer * 5) * 15); 
@@ -1823,16 +1926,20 @@ function drawAnimal(ctx, x, y, type, timer, badType) {
   ctx.shadowColor = 'rgba(0,0,0,0.5)';
   ctx.shadowBlur = 10;
 
-  if (badType !== '🐦‍⬛') {
-     const flap = Math.sin(timer * 40) * 0.3; // rapid rocking wings
-     ctx.rotate(flap);
+  if (badType === '🐦‍⬛') {
+     const flap = Math.sin(timer * 20) * 0.4; 
+     drawUrubu(ctx, flap);
   } else {
-     const glide = Math.sin(timer * 10) * 0.1;
-     ctx.rotate(glide);
+     if (badType !== '🦅') {
+       const flap = Math.sin(timer * 40) * 0.3;
+       ctx.rotate(flap);
+     } else {
+       const glide = Math.sin(timer * 10) * 0.1;
+       ctx.rotate(glide);
+     }
+     ctx.font = '60px Arial'; 
+     ctx.fillText(badType, 0, -25);
   }
-
-  ctx.font = '60px Arial'; 
-  ctx.fillText(badType, 0, -25);
   
   ctx.shadowBlur = 0;
   // Undo rotation so the line falls straight down to the caught animal!
