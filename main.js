@@ -121,48 +121,17 @@ function initAudio() {
   }
 }
 
-// YT BGM Player
-let ytPlayer = null;
-
-const tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-const firstScriptTag = document.getElementsByTagName('script')[0];
-if(firstScriptTag && firstScriptTag.parentNode) {
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-} else {
-  document.head.appendChild(tag);
-}
-
-window.onYouTubeIframeAPIReady = function() {
-  ytPlayer = new YT.Player('yt-player', {
-    height: '200',
-    width: '200',
-    videoId: 'yi6qpbUo-w8', // Pure Piano Instrumental
-    playerVars: {
-      'autoplay': 0,
-      'controls': 0,
-      'disablekb': 1,
-      'loop': 1,
-      'playlist': 'yi6qpbUo-w8' 
-    },
-    events: {
-      'onReady': function(event) {
-        event.target.setVolume(50); 
-      }
-    }
-  });
-};
+// Local MP3 BGM Player
+const bgmAudio = new Audio('bgm.mp3');
+bgmAudio.loop = true;
+bgmAudio.volume = 0.5;
 
 function startBGM() {
-  if (ytPlayer && ytPlayer.playVideo) {
-    ytPlayer.playVideo();
-  }
+  bgmAudio.play().catch(e => console.log("BGM autoplay prevented:", e));
 }
 
 function stopBGM() {
-  if (ytPlayer && ytPlayer.pauseVideo) {
-    ytPlayer.pauseVideo();
-  }
+  bgmAudio.pause();
 }
 
 function playTone(freq, type, duration, vol=0.1) {
