@@ -18,7 +18,8 @@ const UI = {
   btnYesContinue: document.getElementById('btn-yes-continue'),
   btnNoContinue: document.getElementById('btn-no-continue'),
   continuesLeftText: document.getElementById('continues-left'),
-  continueTimerText: document.getElementById('continue-timer')
+  continueTimerText: document.getElementById('continue-timer'),
+  difficultySelect: document.getElementById('difficulty-select')
 };
 
 // --- IMAGE ASSETS ---
@@ -781,6 +782,7 @@ function startGame() {
   game.phase = 1;
   game.lives = 5;
   game.continues = 5;
+  game.difficulty = UI.difficultySelect ? UI.difficultySelect.value : 'medium';
   resetPhase();
   UI.startScreen.classList.add('hidden');
   UI.gameOverScreen.classList.add('hidden');
@@ -790,7 +792,11 @@ function startGame() {
 }
 
 function resetPhase() {
-  game.speed = 250 + (game.phase - 1) * 30;
+  let diffMult = 1;
+  if(game.difficulty === 'easy') diffMult = 0.7;
+  if(game.difficulty === 'hard') diffMult = 1.3;
+  
+  game.speed = (250 + (game.phase - 1) * 30) * diffMult;
   game.timeInPhase = 0;
   player.x = 200;
   player.y = GROUND_Y;
@@ -800,6 +806,9 @@ function resetPhase() {
   player.scale = 1; 
   player.rotation = 0;
   player.jumpCount = 0;
+  player.dead = false;
+  player.invincible = false;
+  player.invincibleTimer = 0;
   bullets = [];
   upBullets = [];
   holes = [];
@@ -828,17 +837,22 @@ function nextPhase() {
   }, 2500); 
 }
 
-function die() {
+function die(fatal = false) {
   // End phase only after Boss is defeated
-  if (gameState !== 'PLAYING') return;
+  if (gameState !== 'PLAYING' || player.dead) return;
+  if (player.invincible && !fatal) return;
+
   game.lives--;
   soundDie();
   createExplosion(player.x, player.y - player.height/2, '#f00', 40);
+  player.dead = true;
   
   if (game.lives <= 0) {
     showContinueScreen();
   } else {
     player.x = -100; 
+    player.y = -1000;
+    player.vy = 0;
     setTimeout(() => {
       if (gameState === 'PLAYING') {
         player.x = 200;
@@ -847,6 +861,9 @@ function die() {
         player.isFalling = false;
         player.scale = 1;
         player.rotation = 0;
+        player.dead = false;
+        player.invincible = true;
+        player.invincibleTimer = 2.0;
       }
     }, 1000);
   }
@@ -999,7 +1016,7 @@ function update(dt) {
   }
   
   if (player.y > canvas.height + 100) {
-    die();
+    die(true);
   }
 
   for(let m of mountains) {
@@ -1011,11 +1028,15 @@ function update(dt) {
     }
   }
 
-  const baseHoleChance = (boss || game.timeInPhase > game.phaseDuration - 2000) ? 0 : 0.001 + (game.phase * 0.0003);
-  const baseBulldogChance = boss ? 0 : 0.002 + (game.phase * 0.0005);
+  let spawnMult = 1;
+  if(game.difficulty === 'easy') spawnMult = 0.5;
+  if(game.difficulty === 'hard') spawnMult = 1.5;
+
+  const baseHoleChance = (boss || game.timeInPhase > game.phaseDuration - 2000) ? 0 : (0.001 + (game.phase * 0.0003)) * spawnMult;
+  const baseBulldogChance = boss ? 0 : (0.002 + (game.phase * 0.0005)) * spawnMult;
   
-  const maxEnemies = boss ? 0 : 1 + game.phase; 
-  const baseEnemyChance = boss ? 0 : 0.002 + (game.phase * 0.001); 
+  const maxEnemies = boss ? 0 : Math.max(1, Math.ceil((1 + game.phase) * spawnMult)); 
+  const baseEnemyChance = boss ? 0 : (0.002 + (game.phase * 0.001)) * spawnMult; 
 
   if (Math.random() < baseHoleChance) {
     if (holes.length === 0 || holes[holes.length-1].x < canvas.width - 350) {
@@ -1278,6 +1299,13 @@ function update(dt) {
     if (particles[i].life <= 0) particles.splice(i, 1);
   }
 
+  if (player.invincible) {
+    player.invincibleTimer -= dt;
+    if (player.invincibleTimer <= 0) {
+      player.invincible = false;
+    }
+  }
+
   player.animTimer += dt;
 }
 
@@ -1389,9 +1417,13 @@ function drawMenuDogs(timer) {
 }
 
 function drawDog(ctx, x, y, width, height, timer, isJumping, isFalling) {
+  if (player.dead) return;
   const drawY = y + 20; // Anchor on dirt
 
   ctx.save();
+  if (player.invincible) {
+    ctx.globalAlpha = (Math.floor(Date.now() / 150) % 2 === 0) ? 0.3 : 0.8;
+  }
   ctx.translate(x, drawY); 
   ctx.scale(player.scale || 1, player.scale || 1);
   if (player.isFalling) ctx.rotate(player.rotation || 0);
