@@ -11,9 +11,9 @@ Este arquivo foi criado para te ajudar a entender as últimas mudanças feitas n
 ### Branch Atual: `master`
 Aqui está a **base segura e final** do jogo neste momento.
 
-### 1. `Atualização de Cache do PWA para v9 (A Ilda Chegou!)`
-- **O que mudou:** O código inteiro foi renovado e o `sw.js` subiu para **v9**.
-- **Por que:** Descartando novamente a versão do seu Firefox ou Chrome para integrar as seguintes lógicas feitas na base principal do jogo:
+### 1. `Atualização de Cache do PWA para v10 (Polimento Mestre)`
+- **O que mudou:** O código subiu para a versão `sw.js` **v10**.
+- **Por que:** Fizemos a refinagem suprema! A Gaivota foi remodelada para que seu rosto fique 100% visível, o título da chefa Ilda foi resumido, e agora todos os ursos (Marrom, Polar e Panda) possuem **corpos completamente desenhados** com perninhas, braços, orelhas e, quando tomam dano/comida, caem de costas balançando as perninhas pro lado com cara de apaixonados!
   1. **Novos Chefes nas Primeiras Fases:** Agora a Gaivota será a Fase 1! O Cachorrão (Fase 2). A Vassoura, os Fogos e a Mangueira fecham as Fases 3, 4 e 5! 
   2. **Ilda, o Cão (A Vida Real):** O temido chefe Cachorrão deixou de ser apenas a "cara do lobo flutuante" num emoji de lua cheia! Eu tirei do céu e a coloquei **nas telas/chão**. Desenhei programaticamente a "ILDA O CÃO", um gigantesco vira-lata de lona preta, com focinho feio e agressivo, olho vermelho malvado, babando entre os dentes afiados!
   3. **A Ilda Te Persegue no Chão:** Sendo o primeiro chefe focado em combate de solo (Melee), a Ilda não fica oscilando entre as nuvens lançando bombas. Ela cai literalmente com quatro patas no asfalto e **corre de frente a frente pela tela para te caçar!** A colisão dela fará o cachorro dar Game Over! Corra dela e atire petiscos para vencê-la!

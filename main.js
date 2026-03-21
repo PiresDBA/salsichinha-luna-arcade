@@ -1866,11 +1866,10 @@ function drawBulldog(ctx, x, y, width, height, timer, state) {
 
 function drawBear(ctx, x, y, kind, timer, state) {
   ctx.save();
-  ctx.translate(x, y);
-
+  
   // Placa de nome
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
-  ctx.fillRect(-25, -70, 50, 15);
+  ctx.fillRect(x - 25, y - 70, 50, 15);
   ctx.fillStyle = '#fff';
   ctx.font = '10px Arial';
   ctx.textAlign = 'center';
@@ -1878,27 +1877,107 @@ function drawBear(ctx, x, y, kind, timer, state) {
   let name = "URSO";
   if(kind === 'white_bear') name = "POLAR";
   if(kind === 'panda_bear') name = "PANDA";
-  ctx.fillText(name, 0, -62);
+  ctx.fillText(name, x, y - 62);
+  
+  let baseColor1 = '#8B4513'; 
+  let baseColor2 = '#A0522D';
+  let bellyColor = '#cda177';
+  if (kind === 'white_bear') {
+      baseColor1 = '#f5f5f5'; baseColor2 = '#ffffff'; bellyColor = '#e0e0e0';
+  } else if (kind === 'panda_bear') {
+      baseColor1 = '#111111'; baseColor2 = '#222222'; bellyColor = '#ffffff';
+  }
 
-  let emoji = '🐻';
-  if(kind === 'white_bear') emoji = '🐻‍❄️';
-  if(kind === 'panda_bear') emoji = '🐼';
+  const drawY = y;
+  ctx.translate(x, drawY);
 
   if (state === 'eating' || state === 'jumping_to_eat') {
+     // Urso gordo caindo pra tras de ponta cabeça
      ctx.font = '50px Arial';
-     ctx.fillText('❤️', 0, -30);
-     if (state === 'eating') {
-         ctx.translate(-20, 0); 
-         ctx.rotate(Math.PI/2 - 0.2); // deita pra dormir feliz
-         ctx.fillText(emoji, 0, -10);
-     } else { // Pulo
-         ctx.rotate(timer * 15);
-         ctx.fillText(emoji, 0, -10);
-     }
+     ctx.fillText('❤️', 0, -60);
+     
+     ctx.rotate(Math.PI); // Fica de ponta cabeça!
+     ctx.translate(0, 10);
+     
+     // Corpo gordinho de ponta cabeca
+     ctx.fillStyle = baseColor1;
+     ctx.beginPath(); ctx.ellipse(0, 0, 25, 30, 0, 0, Math.PI*2); ctx.fill();
+     ctx.fillStyle = bellyColor;
+     ctx.beginPath(); ctx.ellipse(0, -5, 18, 22, 0, 0, Math.PI*2); ctx.fill();
+     
+     // Patinhas batendo loucamente de alegria
+     const wag = Math.sin(timer * 20) * 8;
+     ctx.fillStyle = baseColor2;
+     ctx.beginPath(); ctx.ellipse(-15, -25 + wag, 8, 12, -0.5, 0, Math.PI*2); ctx.fill(); 
+     ctx.beginPath(); ctx.ellipse(15, -25 - wag, 8, 12, 0.5, 0, Math.PI*2); ctx.fill(); 
+     ctx.beginPath(); ctx.ellipse(-20, 10 + wag, 8, 12, -0.8, 0, Math.PI*2); ctx.fill(); 
+     ctx.beginPath(); ctx.ellipse(20, 10 - wag, 8, 12, 0.8, 0, Math.PI*2); ctx.fill(); 
+     
+     // Cabeça super feliz
+     ctx.fillStyle = (kind === 'panda_bear') ? '#fff' : baseColor1;
+     ctx.beginPath(); ctx.ellipse(0, 25, 20, 15, 0, 0, Math.PI*2); ctx.fill();
+     
+     // Orelhinhas
+     ctx.fillStyle = baseColor1;
+     ctx.beginPath(); ctx.arc(-15, 35, 7, 0, Math.PI*2); ctx.fill();
+     ctx.beginPath(); ctx.arc(15, 35, 7, 0, Math.PI*2); ctx.fill();
+     
+     // Olho em formato de U feliz (como a frida \_/)
+     ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+     ctx.beginPath(); ctx.arc(-8, 22, 4, 0, Math.PI); ctx.stroke();
+     ctx.beginPath(); ctx.arc(8, 22, 4, 0, Math.PI); ctx.stroke();
+
   } else {
-     ctx.translate(0, -30 + Math.sin(timer * 10) * 5); // movimento de caminhar pesado
-     ctx.font = '60px Arial';
-     ctx.fillText(emoji, 0, 0);
+     // Urso caminhando
+     const walk1 = Math.sin(timer * 10) * 6;
+     const walk2 = Math.cos(timer * 10) * 6;
+     // Piernas traseiras/dianteriras
+     ctx.fillStyle = baseColor2;
+     ctx.beginPath(); ctx.ellipse(-12 + walk1, 5, 8, 15, 0, 0, Math.PI*2); ctx.fill(); 
+     ctx.beginPath(); ctx.ellipse(12 + walk2, 5, 8, 15, 0, 0, Math.PI*2); ctx.fill(); 
+
+     // Corpo Gordinho
+     ctx.fillStyle = baseColor1;
+     ctx.beginPath(); ctx.ellipse(0, -20, 30, 25, 0, 0, Math.PI*2); ctx.fill();
+     ctx.fillStyle = bellyColor;
+     ctx.beginPath(); ctx.ellipse(-5, -15, 20, 18, 0, 0, Math.PI*2); ctx.fill();
+
+     // Cabeca
+     ctx.translate(-25, -35); 
+     ctx.fillStyle = (kind === 'panda_bear') ? '#fff' : baseColor1;
+     ctx.beginPath(); ctx.ellipse(0, 0, 18, 16, 0, 0, Math.PI*2); ctx.fill();
+     
+     // Orelhas Redondas
+     ctx.fillStyle = baseColor2;
+     if(kind === 'panda_bear') ctx.fillStyle = '#111';
+     ctx.beginPath(); ctx.arc(5, -12, 7, 0, Math.PI*2); ctx.fill();
+     ctx.beginPath(); ctx.arc(-5, -12, 7, 0, Math.PI*2); ctx.fill();
+
+     // Manchas do Panda (Olhos)
+     if (kind === 'panda_bear') {
+         ctx.fillStyle = '#111';
+         ctx.beginPath(); ctx.ellipse(-5, -2, 6, 8, -0.3, 0, Math.PI*2); ctx.fill();
+         ctx.beginPath(); ctx.ellipse(8, -2, 6, 8, 0.3, 0, Math.PI*2); ctx.fill();
+     }
+
+     // Olhos maus
+     ctx.fillStyle = '#fff';
+     ctx.beginPath(); ctx.arc(-5, -2, 3, 0, Math.PI*2); ctx.fill();
+     ctx.beginPath(); ctx.arc(8, -2, 3, 0, Math.PI*2); ctx.fill();
+     ctx.fillStyle = '#000';
+     ctx.beginPath(); ctx.arc(-6, -2, 1.5, 0, Math.PI*2); ctx.fill();
+     ctx.beginPath(); ctx.arc(7, -2, 1.5, 0, Math.PI*2); ctx.fill();
+     
+     // Sobrancelha malvada cruzada
+     ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+     ctx.beginPath(); ctx.moveTo(-8, -6); ctx.lineTo(-2, -4); ctx.stroke();
+     ctx.beginPath(); ctx.moveTo(11, -6); ctx.lineTo(5, -4); ctx.stroke();
+
+     // Focinho
+     ctx.fillStyle = bellyColor;
+     ctx.beginPath(); ctx.ellipse(-10, 8, 10, 6, -0.2, 0, Math.PI*2); ctx.fill();
+     ctx.fillStyle = '#000';
+     ctx.beginPath(); ctx.arc(-14, 6, 3, 0, Math.PI*2); ctx.fill();
   }
   ctx.restore();
 }
@@ -2076,132 +2155,114 @@ function drawUrubu(ctx, flap) {
 
 function drawSeagull(ctx, flap) {
   ctx.save();
-  ctx.translate(0, -30); // Centro da gaivota
+  ctx.translate(0, -30); // Base
 
-  // Asa de Tras
+  // Asa Traseira
   ctx.save();
-  ctx.translate(-25, 0);
+  ctx.translate(-20, -5);
   ctx.rotate(-flap);
-  ctx.fillStyle = '#f0f0f0';
-  ctx.beginPath(); ctx.ellipse(-15, 10, 30, 15, -0.3, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#e8e8e8';
+  ctx.beginPath(); ctx.ellipse(-15, 0, 25, 10, -0.2, 0, Math.PI*2); ctx.fill();
   ctx.restore();
 
-  // Corpo branco principal
+  // Corpo (Gaivota peituda e redonda)
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.ellipse(-10, 0, 35, 25, -0.1, 0, Math.PI*2);
+  ctx.ellipse(0, 0, 35, 25, 0.1, 0, Math.PI*2);
   ctx.fill();
 
-  // Asa da Frente batendo
+  // Pescoço saindo da frente
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 20;
+  ctx.beginPath(); ctx.moveTo(20, -10); ctx.lineTo(40, -40); ctx.stroke();
+
+  // Asa Frontal (agora bem mais abaixo)
   ctx.save();
   ctx.translate(-5, 5);
   ctx.rotate(flap);
-  ctx.fillStyle = '#fdfdfd';
-  ctx.beginPath(); ctx.ellipse(-20, 15, 35, 15, 0.4, 0, Math.PI*2); ctx.fill();
-  // Detalhe das penas na asa
-  ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(-10, 5); ctx.lineTo(-30, 15); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(-15, 2); ctx.lineTo(-35, 8); ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.ellipse(-20, 0, 30, 12, 0.1, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#d0d0d0'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(-10, 2); ctx.lineTo(-30, 4); ctx.stroke();
   ctx.restore();
 
-  // Base do Pescoço / Lencinho Bandana
-  ctx.save();
-  ctx.translate(20, -10);
+  // Cabeça e Lencinho
+  ctx.translate(40, -40);
 
-  // Lencinho Vermelho de bolinhas
+  // Lenço Vermelho amarrado
   ctx.fillStyle = '#cc1111';
-  ctx.beginPath();
-  ctx.ellipse(0, 0, 14, 18, 0.2, 0, Math.PI*2);
-  ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, 10, 14, 8, 0, 0, Math.PI*2); ctx.fill();
+  // Rabicho do lenço descendo
+  ctx.beginPath(); ctx.moveTo(-10, 10); ctx.lineTo(-20, 25); ctx.lineTo(-5, 15); ctx.fill();
   
-  // Bolinhas brancas do lencinho
+  // Bolinhas no lenco
   ctx.fillStyle = '#ffffff';
-  ctx.beginPath(); ctx.arc(-5, -8, 2, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(2, -12, 1.5, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(4, 2, 2.5, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(-6, 5, 2, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(8, -5, 1.5, 0, Math.PI*2); ctx.fill();
-  
-  // Nó do lencinho nas costas do pescoço
-  ctx.fillStyle = '#cc1111';
-  ctx.beginPath(); ctx.ellipse(-12, -15, 10, 4, -0.5, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(-14, -10, 10, 4, 0.5, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath(); ctx.arc(-16, -11, 1, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(-5, 8, 1.5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(2, 12, 2, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(8, 8, 1.5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(-14, 20, 1.5, 0, Math.PI*2); ctx.fill();
 
-  // Cabeca Branca
-  ctx.translate(12, -4);
+  // Rosto gigante de frente
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.ellipse(0, 0, 16, 18, 0, 0, Math.PI*2);
+  ctx.ellipse(5, -5, 22, 22, 0, 0, Math.PI*2); 
   ctx.fill();
-  
-  // 3 peninhas arrepiadas na cabeça
-  ctx.strokeStyle = '#fdfdfd'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(-6, -16); ctx.lineTo(-12, -26); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0, -17); ctx.lineTo(-2, -30); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(6, -15); ctx.lineTo(10, -25); ctx.stroke();
 
-  // Bico Adunco Longo, Fino e Laranja
+  // Penas despenteadas
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0, -25); ctx.lineTo(-5, -40); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(8, -26); ctx.lineTo(10, -42); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(15, -20); ctx.lineTo(25, -35); ctx.stroke();
+
+  // Bico Adunco Extenso
   ctx.fillStyle = '#e87b1c';
   ctx.beginPath();
-  ctx.moveTo(12, 5);
-  ctx.quadraticCurveTo(30, 20, 50, 25);
-  ctx.quadraticCurveTo(20, 25, 5, 12);
+  ctx.moveTo(25, 0); 
+  ctx.quadraticCurveTo(60, 5, 70, 15); 
+  ctx.quadraticCurveTo(40, 15, 20, 10);
   ctx.fill();
-  
-  ctx.strokeStyle = '#c4620f'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(15, 10); ctx.lineTo(35, 20); ctx.stroke();
+  ctx.strokeStyle = '#ba6216'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(25, 5); ctx.lineTo(60, 12); ctx.stroke();
 
-  // Bochechas rosadas de vergonha/cansaco
+  // Bochechas da vergonha
   ctx.fillStyle = '#ff99aa';
-  ctx.beginPath(); ctx.ellipse(4, 10, 6, 4, -0.1, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(10, 10, 7, 5, 0, 0, Math.PI*2); ctx.fill();
 
-  // Oculos Gatinha Vermelho (Cat-Eye)
+  // Óculos Gatinha
   ctx.strokeStyle = '#cc1111';
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 4;
   ctx.lineJoin = 'round';
-  
-  // Lente Esquerda
   ctx.beginPath();
-  ctx.moveTo(-11, -12); // Ponto alto esquerdo
-  ctx.quadraticCurveTo(-6, 8, 3, -6); // curva inferior
-  ctx.quadraticCurveTo(-6, -16, -11, -12); // curva superior
+  ctx.moveTo(-5, -12); // Ponto de orelha (esquerdo do oculos)
+  ctx.quadraticCurveTo(0, 5, 12, -2); // lente esquerda
+  ctx.quadraticCurveTo(5, -15, -5, -12); 
   ctx.stroke();
   
-  // Lente Direita
   ctx.beginPath();
-  ctx.moveTo(5, -6); // Ponto interno / ponte
-  ctx.quadraticCurveTo(12, 10, 18, -4); // curva inferior
-  ctx.quadraticCurveTo(14, -18, 5, -6); // curva superior
+  ctx.moveTo(18, -2); // Ponte do nariz
+  ctx.quadraticCurveTo(25, 8, 35, -5); // lente direita
+  ctx.quadraticCurveTo(30, -18, 18, -2); 
   ctx.stroke();
 
-  // Olhos de Cara de Boba (Cansados e Vesgos)
+  ctx.beginPath(); ctx.moveTo(12, -2); ctx.lineTo(18, -2); ctx.stroke(); 
   
-  // Pupilas azuis bebê e esbugalhadas pro bico (Vesga)
-  ctx.fillStyle = '#55aaff'; 
-  ctx.beginPath(); ctx.arc(-2, -6, 2, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(7, -3, 2, 0, Math.PI*2); ctx.fill();
+  // Olho vesgo 
+  ctx.fillStyle = '#55aaff'; // pupila
+  ctx.beginPath(); ctx.arc(8, -4, 2.5, 0, Math.PI*2); ctx.fill(); // esquerdo puxado pra direita
+  ctx.beginPath(); ctx.arc(22, -4, 2.5, 0, Math.PI*2); ctx.fill(); // direito puxado pra esquerda (VESGA)
 
-  // Pálpebra fechando (olho cansado e bobo)
-  ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.lineCap='round';
-  ctx.beginPath(); ctx.moveTo(-6, -7); ctx.lineTo(0, -5); ctx.stroke(); // olho esquerdo
-  ctx.beginPath(); ctx.moveTo(5, -4); ctx.lineTo(12, -2); ctx.stroke(); // olho direito
-  
-  // Cilios finos da madame
-  ctx.beginPath(); ctx.moveTo(-6, -7); ctx.lineTo(-8, -12); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(-3, -6); ctx.lineTo(-4, -10); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(11, -2); ctx.lineTo(13, -7); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(8, -3); ctx.lineTo(9, -8); ctx.stroke();
+  // Palpebras cansadas (olho meio fechado)
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(2, -6); ctx.lineTo(10, -4); ctx.stroke(); 
+  ctx.beginPath(); ctx.moveTo(18, -4); ctx.lineTo(28, -6); ctx.stroke(); 
 
-  ctx.restore(); // restored head & neck
+  // Cílios
+  ctx.beginPath(); ctx.moveTo(2, -6); ctx.lineTo(-2, -12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(6, -5); ctx.lineTo(4, -10); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(28, -6); ctx.lineTo(32, -12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(23, -4); ctx.lineTo(26, -10); ctx.stroke();
 
-  // Pezinhos de gaivota laranjas balançando
-  ctx.fillStyle = '#e87b1c';
-  ctx.beginPath(); ctx.ellipse(-10, 22, 6, 4, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(-2, 22, 6, 4, 0, 0, Math.PI*2); ctx.fill();
-
-  ctx.restore(); // restored bird center
+  ctx.restore();
 }
 
 function drawAnimal(ctx, x, y, type, timer, badType) {
@@ -2517,7 +2578,7 @@ function render() {
     else if (boss.type === 'car') fearName = 'CARRO';
     else if (boss.type === 'motorcycle') fearName = 'MOTO';
     else if (boss.type === 'seagull') fearName = 'GAIVOTA BOBONA';
-    else if (boss.type === 'bigdog') fearName = 'ILDA O CÃO';
+    else if (boss.type === 'bigdog') fearName = 'ILDA';
     else if (boss.type === 'broom') fearName = 'VASSOURA';
     else if (boss.type === 'fireworks') fearName = 'FOGOS';
     else if (boss.type === 'hose') fearName = 'BANHO';
