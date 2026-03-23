@@ -294,6 +294,21 @@ function soundFreeAnimal() {
   setTimeout(() => playTone(880.00, 'sine', 0.2, 0.1), 100); 
 }
 
+function soundDie() {
+  if(!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 1.0);
+  gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.0);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 1.0);
+}
+
 
 function soundMarioWin() {
   if(!audioCtx) return;
