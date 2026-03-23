@@ -14,11 +14,13 @@ Este é um jogo de plataforma Arcade protagonizado pela destemida Luna Salsicha!
 
 ### Gaivota Vesga 🦅 (Chefe)
 - O primeiro grande desafio de Luna foi renomeado e recebeu novas animações e sons de impacto de torpedo.
+- **Novo Comportamento:** Agora ela **mergulha de bico** na direção da Luna (rotaciona o corpo) e solta um **grito de gaivota** realista ao atacar.
+- **Ataque:** Solta torpedos e tenta bicar a Luna.
 
 ### Helicóptero 🚁
 - **Comportamento:** Sobrevoa a fase com hélice animada e **som original (`helicoptero.mp3`)**.
 - **Resistência:** Agora morre com apenas **1 tiro**!
-- **Recompensa:** Som de **Vitória do Mario**, aviso por voz (**Tiro Triplo!**) e 1 minuto de poder.
+- **Recompensa:** Som de **Vitória do Mario**, aviso por voz (**Tiro Triplo!**) e **12 segundos** de poder.
 
 ### Avião ✈️ (Especial)
 - **Visual:** Avião personalizado com o **Piloto Especial** (com sistema de transparência automática).
