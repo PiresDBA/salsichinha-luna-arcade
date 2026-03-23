@@ -13,12 +13,12 @@ Este é um jogo de plataforma Arcade protagonizado pela destemida Luna Salsicha!
 ## 🚁 Inimigos e Power-ups!
 
 ### Helicóptero 🚁
-- **Comportamento:** Sobrevoa a fase com hélice animada e som de motor.
+- **Comportamento:** Sobrevoa a fase com hélice animada e **som real de motor (MP3)**.
 - **Resistência:** Agora morre com apenas **1 tiro**!
 - **Recompensa:** Concede o **Tiro Triplo** por **1 minuto**.
 
 ### Avião ✈️
-- **Comportamento:** Passa rápido pela tela deixando um rastro de fumaça.
+- **Comportamento:** Passa rápido pela tela em **vôo horizontal** deixando um rastro de fumaça.
 - **Resistência:** Morre com apenas **1 tiro**.
 - **Recompensa:** Concede o **Tiro Duplo** por **1 minuto**.
 
