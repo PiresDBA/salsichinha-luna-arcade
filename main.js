@@ -31,7 +31,7 @@ const menuDogImg = new Image();
 menuDogImg.src = 'luna-menu-transparent.png';
 
 const customPlaneImg = new Image();
-customPlaneImg.src = 'custom_plane.png';
+customPlaneImg.src = 'aviao5.png';
 
 let continueInterval = null;
 
