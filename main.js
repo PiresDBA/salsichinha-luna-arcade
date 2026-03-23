@@ -1222,11 +1222,14 @@ function shoot() {
     upBullets.push({ x: player.x, y: player.y - player.height - 20, vy: -450, vx: -400, rot: 0, type: currentAmmo }); 
     upBullets.push({ x: player.x, y: player.y - player.height - 20, vy: -450, vx: 400, rot: 0, type: currentAmmo }); 
   } else if (player.doubleShotTimer > 0) {
-    // 1 forward (line 1156), 2 upward
+    // 2 tiros para frente E 2 tiros para cima (Desejo do Usuário!)
+    // O primeiro de frente já saiu no início da função (linha 1216)
+    bullets.push({ x: player.x + player.width/2 - 10, y: player.y - 12 - 15, vx: 600, rot: 0, type: currentAmmo });
+    // E agora os dois para cima em "V"
     upBullets.push({ x: player.x, y: player.y - player.height - 20, vy: -600, vx: -50, rot: 0, type: currentAmmo });
     upBullets.push({ x: player.x, y: player.y - player.height - 20, vy: -600, vx: 50, rot: 0, type: currentAmmo });
   } else {
-    // 1 forward bullet, 1 up bullet
+    // Modo Normal: 1 tiro para frente (linha 1216) e 1 para cima (abaixo)
     upBullets.push({ x: player.x, y: player.y - player.height - 20, vy: -600, vx: 0, rot: 0, type: currentAmmo });
   }
 }
@@ -1767,7 +1770,7 @@ function update(dt) {
      if (u.hp <= 0) {
         createExplosion(u.x, u.y, '#55ff55', 60);
         soundPowerUp(); 
-        player.doubleShotTimer = 5000; // 5 segundos de duplo
+        player.doubleShotTimer = 7000; // Agora 7 segundos como pedido
         ufos.splice(i, 1);
         ufoActive = false;
         stopUfoSound();
