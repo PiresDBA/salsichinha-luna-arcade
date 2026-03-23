@@ -768,6 +768,7 @@ let stars = [];
 let mountains = [];
 let decorations = [];
 let ufos = [];
+let beakOpen = false;
 
 // loadGame removed - to avoid crash due to player.outfit before player is defined
 
@@ -1015,7 +1016,13 @@ UI.btnNoContinue.addEventListener('click', rejectContinue);
 UI.saveScoreBtn.addEventListener('click', () => {
     updateHighScores(game.score, UI.playerNameInput.value);
     renderHighScores();
-    UI.recordInputContainer.style.display = 'none'; // esconde após salvar
+});
+
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+    e.target.classList.add('selected');
+  });
 });
 
 // menuDogCanvas click removed - element no longer in HTML
@@ -1037,7 +1044,7 @@ function startGame() {
   game.phase = 1;
   game.lives = 5;
   game.continues = 5;
-  game.difficulty = UI.difficultySelect ? UI.difficultySelect.value : 'medium';
+  game.difficulty = document.querySelector('.diff-btn.selected')?.dataset.val || 'medium';
   resetPhase();
   UI.startScreen.classList.add('hidden');
   UI.gameOverScreen.classList.add('hidden');
@@ -1154,9 +1161,11 @@ function shoot() {
     upBullets.push({ x: player.x, y: player.y - player.height - 20, vy: -600, vx: 0, rot: 0, type: currentAmmo }); 
     upBullets.push({ x: player.x, y: player.y - player.height - 20, vy: -450, vx: -400, rot: 0, type: currentAmmo }); 
     upBullets.push({ x: player.x, y: player.y - player.height - 20, vy: -450, vx: 400, rot: 0, type: currentAmmo }); 
+  } else if (player.doubleShotTimer > 0) {
+    // double front bullet, no up bullet
+    bullets.push({ x: player.x + player.width/2 - 10, y: player.y - 12 - 15, vx: 600, rot: 0, type: currentAmmo });
   } else {
     // 1 forward bullet, 1 up bullet
-    bullets.push({ x: player.x + player.width/2 - 10, y: player.y - 12, vx: 600, rot: 0, type: currentAmmo });
     upBullets.push({ x: player.x, y: player.y - player.height - 20, vy: -600, vx: 0, rot: 0, type: currentAmmo });
   }
 }

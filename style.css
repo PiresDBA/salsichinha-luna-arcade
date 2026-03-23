@@ -172,6 +172,24 @@ p {
   color: #eee;
 }
 
+.diff-btn {
+  border: 2px solid transparent;
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: white;
+  font-family: 'Righteous', cursive;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.2s;
+}
+.diff-btn.selected {
+  opacity: 1;
+  border-color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
 .key {
   display: inline-block;
   background: linear-gradient(to bottom, #fff, #ddd);

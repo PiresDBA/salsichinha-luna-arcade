@@ -46,22 +46,17 @@
         <img id="menu-dog-img" src="./luna-icon.png" class="menu-dog-anim" alt="Luna Salsicha">
       </div>
 
-      <div class="controls">
-        <p><span class="key">Z</span> / <span class="key">J</span> : Atirar</p>
-        <p><span class="key">↑</span> / <span class="key">Espaço</span> : Pular</p>
-        <p><span class="key">←</span> / <span class="key">→</span> : Movimentar</p>
+      <div class="controls" style="text-align: center; margin-bottom: 5px; font-size: 13px;">
+        <span class="key">Z</span>/<span class="key">J</span>: Atirar &nbsp;|&nbsp; <span class="key">↑</span>/<span class="key">Espaço</span>: Pular &nbsp;|&nbsp; <span class="key">←</span>/<span class="key">→</span>: Mover
       </div>
 
-      <div id="difficulty-selector"
-        style="text-align: center; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 10px; display: inline-block;">
-        <label
-          style="color:#ffcc00; font-size:18px; font-family:'Press Start 2P', sans-serif; text-shadow: 2px 2px #000;">Dificuldade:</label>
-        <select id="difficulty-select"
-          style="font-size:16px; padding:5px; border-radius:5px; margin-left:10px; cursor:pointer; background:#fff; color:#333; font-weight:bold;">
-          <option value="easy">Fácil</option>
-          <option value="medium" selected>Médio</option>
-          <option value="hard">Muito Difícil</option>
-        </select>
+      <div id="difficulty-selector" style="text-align: center; margin-bottom: 12px;">
+        <div style="color:#ffcc00; font-size:14px; font-family:'Righteous', cursive; margin-bottom:5px;">DIFICULDADE</div>
+        <div style="display: flex; justify-content: center; gap: 8px;">
+          <button class="diff-btn" data-val="easy" style="background:#4caf50;">Fácil</button>
+          <button class="diff-btn selected" data-val="medium" style="background:#ff9800;">Médio</button>
+          <button class="diff-btn" data-val="hard" style="background:#f44336;">Hard</button>
+        </div>
       </div>
 
       <button id="start-btn" class="btn">Topa Começar? Vamos Nessa!</button>
