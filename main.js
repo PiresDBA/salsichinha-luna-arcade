@@ -18,7 +18,12 @@ const UI = {
   btnYesContinue: document.getElementById('btn-yes-continue'),
   btnNoContinue: document.getElementById('btn-no-continue'),
   continuesLeftText: document.getElementById('continues-left'),
-  continueTimerText: document.getElementById('continue-timer')
+  continueTimerText: document.getElementById('continue-timer'),
+  difficultySelect: document.getElementById('difficulty-select'),
+  highScoresList: document.getElementById('high-scores-list'),
+  playerNameInput: document.getElementById('player-name'),
+  saveScoreBtn: document.getElementById('save-score-btn'),
+  recordInputContainer: document.getElementById('record-input-container')
 };
 
 // --- IMAGE ASSETS ---
@@ -71,11 +76,34 @@ function rejectContinue() {
 function triggerGameOver() {
   gameState = 'GAMEOVER';
   UI.finalScore.innerText = game.score;
+  UI.recordInputContainer.style.display = 'block'; // mostra pra digitar o nome
+  renderHighScores();
   setTimeout(() => {
     UI.gameOverScreen.classList.remove('hidden');
   }, 1000);
   stopBGM();
   saveGame();
+}
+
+function updateHighScores(newScore, playerName) {
+    let scores = JSON.parse(localStorage.getItem('luna_high_scores')) || [];
+    const pName = playerName ? playerName.trim().substring(0, 10) : "ANÔNIMO";
+    scores.push({ name: pName, score: newScore, date: new Date().toLocaleDateString('pt-BR') });
+    scores.sort((a, b) => b.score - a.score);
+    scores = scores.slice(0, 5); // top 5
+    localStorage.setItem('luna_high_scores', JSON.stringify(scores));
+}
+
+function renderHighScores() {
+    const scores = JSON.parse(localStorage.getItem('luna_high_scores')) || [];
+    if (UI.highScoresList) {
+        UI.highScoresList.innerHTML = scores.map((s, i) => `
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dotted rgba(255,255,255,0.3); padding: 5px 0;">
+                <span style="font-weight:bold; color:#ffcc00">${i + 1}º ${s.name || '---'}</span>
+                <span>${s.score} pts</span>
+            </div>
+        `).join('') || '<p style="text-align:center; opacity:0.5;">Nenhum recorde ainda!</p>';
+    }
 }
 
 const GROUND_Y = 500;
@@ -121,6 +149,7 @@ function initAudio() {
   }
 }
 
+<<<<<<< HEAD
 // YT BGM Player
 let ytPlayer = null;
 
@@ -172,12 +201,19 @@ function startBGM() {
   } else {
     ytPlayer.playVideo();
   }
+=======
+// Local MP3 BGM Player
+const bgmAudio = new Audio('bgm.mp3');
+bgmAudio.loop = true;
+bgmAudio.volume = 0.5;
+
+function startBGM() {
+  bgmAudio.play().catch(e => console.log("BGM autoplay prevented:", e));
+>>>>>>> 5ea3b83654fd2bb2bc20f0b26327495d5a5c42dc
 }
 
 function stopBGM() {
-  if (ytPlayer && ytPlayer.pauseVideo) {
-    ytPlayer.pauseVideo();
-  }
+  bgmAudio.pause();
 }
 
 function playTone(freq, type, duration, vol=0.1) {
@@ -374,7 +410,14 @@ function playBgNoise(type) {
   if(!audioCtx) return;
   stopBgNoise();
 
-  if (type === 'wind') {
+  let soundType = type;
+  if (type === 'seagull') soundType = 'wind';
+  if (type === 'hose') soundType = 'wind';
+  if (type === 'broom') soundType = 'vacuum';
+  if (type === 'fireworks') soundType = 'storm';
+  if (type === 'bigdog') soundType = 'car';
+
+  if (soundType === 'wind') {
     // Vento: pink noise + LFO suave no filtro para simular rajadas
     const noiseSrc = audioCtx.createBufferSource();
     noiseSrc.buffer = makePinkNoise(4); noiseSrc.loop = true;
@@ -496,6 +539,26 @@ function stopBgNoise() {
   currentEngineOscs.forEach(o => { try { o.stop(); } catch(e){} });
   currentEngineOscs = [];
 }
+
+const bearAudioPool = [
+  'bear1.mp3',
+  'bear2.mp3',
+  'bear3.mp3'
+].map(src => new Audio(src));
+
+function soundBear() {
+  const audio = bearAudioPool[Math.floor(Math.random() * bearAudioPool.length)];
+  const clone = audio.cloneNode(true);
+  clone.volume = 1.0;
+  clone.play().catch(e => console.log('Áudio de urso bloqueado por autoplay: ', e));
+}
+const crowAudio = new Audio('crow.mp3');
+function soundCrow() {
+  const clone = crowAudio.cloneNode(true);
+  clone.volume = 1.0;
+  clone.play().catch(e => console.log('Crow audio blocked: ', e));
+}
+
 // --- END AUDIO ---
 
 let _t = 0;
@@ -536,7 +599,7 @@ let game = {
   bgSpeed: 50, 
   bgOffset: 0,
   timeInPhase: 0,
-  phaseDuration: 30000,
+  phaseDuration: 45000,
 };
 
 let player = {
@@ -576,11 +639,17 @@ let decorations = [];
 // loadGame removed - to avoid crash due to player.outfit before player is defined
 
 function getTheme(phase) {
-  const p = (phase - 1) % 4;
+  const p = (phase - 1) % 10;
   if (p === 0) return { sky: '#4DA6FF', g1: '#5D4037', g2: '#3CB371', m1: '#2E8B57', type: 'forest', starAlpha: 0 };
   if (p === 1) return { sky: '#FF8C00', g1: '#A0522D', g2: '#D2691E', m1: '#8B4513', type: 'mountain', starAlpha: 0.2 };
   if (p === 2) return { sky: '#191970', g1: '#444444', g2: '#777777', m1: '#555555', type: 'lunar', starAlpha: 1 };
   if (p === 3) return { sky: '#800080', g1: '#408080', g2: '#90EE90', m1: '#483D8B', type: 'alien', starAlpha: 0.8 };
+  if (p === 4) return { sky: '#ff6600', g1: '#993300', g2: '#cc3300', m1: '#661100', type: 'mars', starAlpha: 0.4 };
+  if (p === 5) return { sky: '#ffe666', g1: '#cca300', g2: '#ffcc00', m1: '#b38f00', type: 'venus', starAlpha: 0.1 };
+  if (p === 6) return { sky: '#87CEEB', g1: '#006994', g2: '#00BFFF', m1: '#1CA3EC', type: 'sea', starAlpha: 0 };
+  if (p === 7) return { sky: '#708090', g1: '#333333', g2: '#4d4d4d', m1: '#2f4f4f', type: 'city', starAlpha: 0.1 };
+  if (p === 8) return { sky: '#003300', g1: '#001a00', g2: '#004d00', m1: '#002600', type: 'jungle', starAlpha: 0 };
+  if (p === 9) return { sky: '#e0ffff', g1: '#b0e0e6', g2: '#ffffff', m1: '#87cefa', type: 'ice', starAlpha: 0.3 };
   return { sky: '#4DA6FF', g1: '#5D4037', g2: '#3CB371', m1: '#2E8B57', type: 'forest', starAlpha: 0 };
 }
 
@@ -810,6 +879,11 @@ UI.continueBtn.addEventListener('click', () => {
 
 UI.btnYesContinue.addEventListener('click', acceptContinue);
 UI.btnNoContinue.addEventListener('click', rejectContinue);
+UI.saveScoreBtn.addEventListener('click', () => {
+    updateHighScores(game.score, UI.playerNameInput.value);
+    renderHighScores();
+    UI.recordInputContainer.style.display = 'none'; // esconde após salvar
+});
 
 // menuDogCanvas click removed - element no longer in HTML
 
@@ -830,16 +904,22 @@ function startGame() {
   game.phase = 1;
   game.lives = 5;
   game.continues = 5;
+  game.difficulty = UI.difficultySelect ? UI.difficultySelect.value : 'medium';
   resetPhase();
   UI.startScreen.classList.add('hidden');
   UI.gameOverScreen.classList.add('hidden');
+  UI.playerNameInput.value = ''; // limpa o nome anterior
   if(UI.phaseTransition) UI.phaseTransition.classList.add('hidden');
   
   startBGM(); 
 }
 
 function resetPhase() {
-  game.speed = 250 + (game.phase - 1) * 30;
+  let diffMult = 1;
+  if(game.difficulty === 'easy') diffMult = 0.7;
+  if(game.difficulty === 'hard') diffMult = 1.3;
+  
+  game.speed = (250 + (game.phase - 1) * 30) * diffMult;
   game.timeInPhase = 0;
   player.x = 200;
   player.y = GROUND_Y;
@@ -849,6 +929,10 @@ function resetPhase() {
   player.scale = 1; 
   player.rotation = 0;
   player.jumpCount = 0;
+  player.dead = false;
+  player.invincible = false;
+  player.invincibleTimer = 0;
+  game.cameraAngle = 0;
   bullets = [];
   upBullets = [];
   holes = [];
@@ -881,17 +965,22 @@ function nextPhase() {
   }, 2500); 
 }
 
-function die() {
+function die(fatal = false) {
   // End phase only after Boss is defeated
-  if (gameState !== 'PLAYING') return;
+  if (gameState !== 'PLAYING' || player.dead) return;
+  if (player.invincible && !fatal) return;
+
   game.lives--;
   soundDie();
   createExplosion(player.x, player.y - player.height/2, '#f00', 40);
+  player.dead = true;
   
   if (game.lives <= 0) {
     showContinueScreen();
   } else {
     player.x = -100; 
+    player.y = -1000;
+    player.vy = 0;
     setTimeout(() => {
       if (gameState === 'PLAYING') {
         player.x = 200;
@@ -900,6 +989,9 @@ function die() {
         player.isFalling = false;
         player.scale = 1;
         player.rotation = 0;
+        player.dead = false;
+        player.invincible = true;
+        player.invincibleTimer = 2.0;
       }
     }, 1000);
   }
@@ -975,12 +1067,17 @@ function update(dt) {
   game.bgOffset += game.speed * dt;
 
   if (game.timeInPhase > game.phaseDuration && !boss) {
-    let bType = 'storm';
-    const bPhase = game.phase % 5;
-    if (bPhase === 1) bType = 'wind';
-    else if (bPhase === 2) bType = 'storm';
-    else if (bPhase === 3) bType = 'vacuum';
-    else if (bPhase === 4) bType = 'car';
+    let bType = 'seagull';
+    const bPhase = game.phase % 10;
+    if (bPhase === 1) bType = 'seagull';
+    else if (bPhase === 2) bType = 'bigdog';
+    else if (bPhase === 3) bType = 'broom';
+    else if (bPhase === 4) bType = 'fireworks';
+    else if (bPhase === 5) bType = 'hose';
+    else if (bPhase === 6) bType = 'wind';
+    else if (bPhase === 7) bType = 'storm';
+    else if (bPhase === 8) bType = 'vacuum';
+    else if (bPhase === 9) bType = 'car';
     else bType = 'motorcycle';
 
     boss = {
@@ -996,14 +1093,19 @@ function update(dt) {
 
   // Background decorations spawning (clouds, comets, etc.)
   if (Math.random() < 0.01) {
-    if (decorations.length < 8) {
+    if (decorations.length < 12) {
       let icon = '☁️';
       if (theme.type === 'lunar') icon = '☄️';
       else if (theme.type === 'alien') icon = '🛸';
+      else if (theme.type === 'mars') icon = '🛰️';
+      else if (theme.type === 'sea') icon = '⛵';
+      else if (theme.type === 'city') icon = '🚗';
+      else if (theme.type === 'jungle') icon = '🌿';
+      else if (theme.type === 'ice') icon = '❄️';
       
       decorations.push({
         x: canvas.width + 100,
-        y: 30 + Math.random() * 200,
+        y: Math.random() < 0.5 && (theme.type === 'sea' || theme.type === 'city') ? GROUND_Y - 30 - Math.random() * 40 : 30 + Math.random() * 200,
         speed: 10 + Math.random() * 40,
         icon: icon,
         size: 40 + Math.random() * 40
@@ -1051,7 +1153,7 @@ function update(dt) {
   }
   
   if (player.y > canvas.height + 100) {
-    die();
+    die(true);
   }
 
   for(let m of mountains) {
@@ -1063,11 +1165,30 @@ function update(dt) {
     }
   }
 
-  const baseHoleChance = (boss || game.timeInPhase > game.phaseDuration - 2000) ? 0 : 0.001 + (game.phase * 0.0003);
-  const baseBulldogChance = boss ? 0 : 0.002 + (game.phase * 0.0005);
+  let spawnMult = 1;
+  if(game.difficulty === 'easy') spawnMult = 0.5;
+  if(game.difficulty === 'hard') spawnMult = 1.5;
+
+  const baseHoleChance = (boss || game.timeInPhase > game.phaseDuration - 2000) ? 0 : (0.003 + (game.phase * 0.0006)) * spawnMult;
+  const baseBulldogChance = boss ? 0 : (0.002 + (game.phase * 0.0005)) * spawnMult;
   
-  const maxEnemies = boss ? 0 : 1 + game.phase; 
-  const baseEnemyChance = boss ? 0 : 0.002 + (game.phase * 0.001); 
+  const maxEnemies = boss ? 0 : Math.max(1, Math.ceil((1 + game.phase) * spawnMult)); 
+  const baseEnemyChance = boss ? 0 : (0.003 + (game.phase * 0.001)) * spawnMult; 
+
+  let targetAngle = 0; // Inclinação Diagonal do Terreno
+  if (!boss && game.timeInPhase > 12000 && game.timeInPhase < game.phaseDuration - 8000) {
+    const rawSin = Math.sin(game.timeInPhase * 0.0002);
+    if (game.phase === 3) {
+        targetAngle = rawSin * 0.15;
+    } else if (game.phase === 4) {
+        targetAngle = Math.abs(rawSin) * 0.15; // Mudar para subir
+    } else if (game.phase === 5) {
+        targetAngle = -Math.abs(rawSin) * 0.15; // Mudar para descer
+    } else if (game.phase >= 6) {
+        targetAngle = rawSin * 0.15; // Sobe e desce
+    }
+  }
+  game.cameraAngle = (game.cameraAngle || 0) + (targetAngle - (game.cameraAngle || 0)) * dt * 1.5;
 
   if (Math.random() < baseHoleChance) {
     if (holes.length === 0 || holes[holes.length-1].x < canvas.width - 350) {
@@ -1080,17 +1201,21 @@ function update(dt) {
       if (Math.abs(h.x - canvas.width) < h.width * 2 + 100) valid = false;
     }
     if (valid && bulldogs.length < 2) { 
-      const t = Math.random() > 0.5 ? 'frida' : 'cinder';
-      let w = t === 'cinder' ? 60 : 110; 
-      let h = t === 'cinder' ? 35 : 50;
+      const kinds = ['cinder', 'frida', 'white_bear', 'brown_bear', 'panda_bear'];
+      const t = kinds[Math.floor(Math.random() * kinds.length)];
+      let w = t === 'cinder' ? 60 : (t === 'frida' ? 110 : 90); 
+      let h = t === 'cinder' ? 35 : (t === 'frida' ? 50 : 60);
       bulldogs.push({ x: canvas.width, y: GROUND_Y, width: w, height: h, state: 'idle', animTimer: 0, kind: t }); 
-      if (t === 'cinder') soundMeow(); else soundDogBark();
+      if (t === 'cinder') soundMeow(); 
+      else if (t.includes('bear')) soundBear(); 
+      else soundDogBark();
     }
   }
   if (Math.random() < baseEnemyChance) { 
     if (enemies.length < maxEnemies) { 
-      const types = ['marmota', 'lagosta', 'camarao', 'lombriz', 'cat', 'monkey', 'dove'];
-      const badTypes = ['bat', 'eagle', 'fly'];
+      // Apenas animais com corpos inteiros (sem rostos avulsos como urso ou panda)
+      const types = ['🐈','🐒','🕊️','🐅','🐎','🐂','🐄','🐖','🐏','🐑','🐐','🐪','🦌','🐇','🐿️'];
+      const badTypes = ['🐦‍⬛'];
       enemies.push({ 
         x: canvas.width + 50, 
         y: 40 + Math.random() * 180, 
@@ -1099,6 +1224,7 @@ function update(dt) {
         type: types[Math.floor(Math.random() * types.length)],
         badType: badTypes[Math.floor(Math.random() * badTypes.length)]
       });
+      soundCrow();
     }
   }
 
@@ -1171,13 +1297,51 @@ function update(dt) {
       if (boss.x < canvas.width / 2) boss.state = 'fighting';
     } else if (boss.state === 'fighting') {
       if (!boss.dead) {
-        // Sweeps across the entire screen!
-        boss.x = canvas.width / 2 + Math.sin(boss.timer * 1.5) * (canvas.width / 2 - 50);
-        boss.y = 150 + Math.sin(boss.timer * 3.5) * 80;
+        // Define o movimento do Boss de acordo com o tipo
+        if (boss.type === 'bigdog') {
+           // Hilda the ground charger
+           boss.y = Math.min(boss.y + 200 * dt, GROUND_Y - 40);
+           boss.x = canvas.width / 2 + Math.sin(boss.timer * 2.0) * (canvas.width / 2 - 20); 
+        } else if (boss.type === 'seagull') {
+           // Gaivota Dive Attack!
+           if (!boss.mode) boss.mode = 'FLYING';
+           if (!boss.modeTimer) boss.modeTimer = 0;
+           boss.modeTimer += dt;
+           
+           if (boss.mode === 'FLYING') {
+              boss.x = canvas.width / 2 + Math.sin(boss.timer * 1.5) * (canvas.width / 2 - 50);
+              boss.y = 150 + Math.sin(boss.timer * 3.5) * 80;
+              if (boss.modeTimer > 6) { // Volta a mergulhar a cada 6s
+                  boss.mode = 'DIVING';
+                  boss.modeTimer = 0;
+              }
+           } else {
+              // Mergulho (Diving)
+              const targetY = GROUND_Y - 50;
+              const targetX = player.x + 100; // tenta passar por cima
+              boss.x += (targetX - boss.x) * dt * 2;
+              boss.y += (targetY - boss.y) * dt * 3;
+              if (boss.modeTimer > 3) { // 3 segundos de mergulho
+                  boss.mode = 'FLYING';
+                  boss.modeTimer = 0;
+              }
+           }
+        } else {
+           // Flying bosses loop sky
+           boss.x = canvas.width / 2 + Math.sin(boss.timer * 1.5) * (canvas.width / 2 - 50);
+           boss.y = 150 + Math.sin(boss.timer * 3.5) * 80;
+        }
         
-        // Boss shoots fast bombs
-        if (Math.random() < 0.03 + (game.phase * 0.01)) {
-           bombs.push({ x: boss.x, y: boss.y + 40, vy: 300 });
+        // Dano Corpo-a-Corpo caso o Chefe colida diretamente (ex: Ilda o Cão!)
+        if (!player.isFalling && !player.invincible && boss.y > 200 &&
+            Math.abs(player.x - boss.x) < 50 &&
+            Math.abs((player.y - player.height/2) - boss.y) < 50) {
+           die();
+        }
+        
+        // Boss joga torpedos muito mais rapido agora (rate maior)
+        if (Math.random() < 0.05 + (game.phase * 0.015)) {
+           bombs.push({ x: boss.x, y: boss.y + 40, vy: 400 });
         }
       }
 
@@ -1330,6 +1494,7 @@ function update(dt) {
     if (particles[i].life <= 0) particles.splice(i, 1);
   }
 
+<<<<<<< HEAD
   // Helicopter Update
   const heliSpawnChance = (game.timeInPhase < 5000 || (game.timeInPhase > game.phaseDuration - 5000 && !boss)) ? 0.005 : 0;
   if (Math.random() < heliSpawnChance && helicopters.length === 0) {
@@ -1380,6 +1545,15 @@ function update(dt) {
     player.tripleShotTimer -= dt * 1000;
   }
 
+=======
+  if (player.invincible) {
+    player.invincibleTimer -= dt;
+    if (player.invincibleTimer <= 0) {
+      player.invincible = false;
+    }
+  }
+
+>>>>>>> 5ea3b83654fd2bb2bc20f0b26327495d5a5c42dc
   player.animTimer += dt;
 }
 
@@ -1491,9 +1665,13 @@ function drawMenuDogs(timer) {
 }
 
 function drawDog(ctx, x, y, width, height, timer, isJumping, isFalling) {
+  if (player.dead) return;
   const drawY = y + 20; // Anchor on dirt
 
   ctx.save();
+  if (player.invincible) {
+    ctx.globalAlpha = (Math.floor(Date.now() / 150) % 2 === 0) ? 0.3 : 0.8;
+  }
   ctx.translate(x, drawY); 
   ctx.scale(player.scale || 1, player.scale || 1);
   if (player.isFalling) ctx.rotate(player.rotation || 0);
@@ -1861,6 +2039,425 @@ function drawBulldog(ctx, x, y, width, height, timer, state) {
   }
 }
 
+function drawBear(ctx, x, y, kind, timer, state) {
+  ctx.save();
+  
+  // Placa de nome
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(x - 25, y - 70, 50, 15);
+  ctx.fillStyle = '#fff';
+  ctx.font = '10px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  let name = "URSO";
+  if(kind === 'white_bear') name = "POLAR";
+  if(kind === 'panda_bear') name = "PANDA";
+  ctx.fillText(name, x, y - 62);
+  
+  let baseColor1 = '#8B4513'; 
+  let baseColor2 = '#A0522D';
+  let bellyColor = '#cda177';
+  if (kind === 'white_bear') {
+      baseColor1 = '#f5f5f5'; baseColor2 = '#ffffff'; bellyColor = '#e0e0e0';
+  } else if (kind === 'panda_bear') {
+      baseColor1 = '#111111'; baseColor2 = '#222222'; bellyColor = '#ffffff';
+  }
+
+  const drawY = y;
+  ctx.translate(x, drawY);
+
+  if (state === 'eating' || state === 'jumping_to_eat') {
+     // Urso gordo caindo pra tras de ponta cabeça
+     ctx.font = '50px Arial';
+     ctx.fillText('❤️', 0, -60);
+     
+     ctx.rotate(Math.PI); // Fica de ponta cabeça!
+     ctx.translate(0, 10);
+     
+     // Corpo gordinho de ponta cabeca
+     ctx.fillStyle = baseColor1;
+     ctx.beginPath(); ctx.ellipse(0, 0, 25, 30, 0, 0, Math.PI*2); ctx.fill();
+     ctx.fillStyle = bellyColor;
+     ctx.beginPath(); ctx.ellipse(0, -5, 18, 22, 0, 0, Math.PI*2); ctx.fill();
+     
+     // Patinhas batendo loucamente de alegria
+     const wag = Math.sin(timer * 20) * 8;
+     ctx.fillStyle = baseColor2;
+     ctx.beginPath(); ctx.ellipse(-15, -25 + wag, 8, 12, -0.5, 0, Math.PI*2); ctx.fill(); 
+     ctx.beginPath(); ctx.ellipse(15, -25 - wag, 8, 12, 0.5, 0, Math.PI*2); ctx.fill(); 
+     ctx.beginPath(); ctx.ellipse(-20, 10 + wag, 8, 12, -0.8, 0, Math.PI*2); ctx.fill(); 
+     ctx.beginPath(); ctx.ellipse(20, 10 - wag, 8, 12, 0.8, 0, Math.PI*2); ctx.fill(); 
+     
+     // Cabeça super feliz
+     ctx.fillStyle = (kind === 'panda_bear') ? '#fff' : baseColor1;
+     ctx.beginPath(); ctx.ellipse(0, 25, 20, 15, 0, 0, Math.PI*2); ctx.fill();
+     
+     // Orelhinhas
+     ctx.fillStyle = baseColor1;
+     ctx.beginPath(); ctx.arc(-15, 35, 7, 0, Math.PI*2); ctx.fill();
+     ctx.beginPath(); ctx.arc(15, 35, 7, 0, Math.PI*2); ctx.fill();
+     
+     // Olho em formato de U feliz (como a frida \_/)
+     ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+     ctx.beginPath(); ctx.arc(-8, 22, 4, 0, Math.PI); ctx.stroke();
+     ctx.beginPath(); ctx.arc(8, 22, 4, 0, Math.PI); ctx.stroke();
+
+  } else {
+     // Urso caminhando
+     const walk1 = Math.sin(timer * 10) * 6;
+     const walk2 = Math.cos(timer * 10) * 6;
+     // Piernas traseiras/dianteriras
+     ctx.fillStyle = baseColor2;
+     ctx.beginPath(); ctx.ellipse(-12 + walk1, 5, 8, 15, 0, 0, Math.PI*2); ctx.fill(); 
+     ctx.beginPath(); ctx.ellipse(12 + walk2, 5, 8, 15, 0, 0, Math.PI*2); ctx.fill(); 
+
+     // Corpo Gordinho
+     ctx.fillStyle = baseColor1;
+     ctx.beginPath(); ctx.ellipse(0, -20, 30, 25, 0, 0, Math.PI*2); ctx.fill();
+     ctx.fillStyle = bellyColor;
+     ctx.beginPath(); ctx.ellipse(-5, -15, 20, 18, 0, 0, Math.PI*2); ctx.fill();
+
+     // Cabeca
+     ctx.translate(-25, -35); 
+     ctx.fillStyle = (kind === 'panda_bear') ? '#fff' : baseColor1;
+     ctx.beginPath(); ctx.ellipse(0, 0, 18, 16, 0, 0, Math.PI*2); ctx.fill();
+     
+     // Orelhas Redondas
+     ctx.fillStyle = baseColor2;
+     if(kind === 'panda_bear') ctx.fillStyle = '#111';
+     ctx.beginPath(); ctx.arc(5, -12, 7, 0, Math.PI*2); ctx.fill();
+     ctx.beginPath(); ctx.arc(-5, -12, 7, 0, Math.PI*2); ctx.fill();
+
+     // Manchas do Panda (Olhos)
+     if (kind === 'panda_bear') {
+         ctx.fillStyle = '#111';
+         ctx.beginPath(); ctx.ellipse(-5, -2, 6, 8, -0.3, 0, Math.PI*2); ctx.fill();
+         ctx.beginPath(); ctx.ellipse(8, -2, 6, 8, 0.3, 0, Math.PI*2); ctx.fill();
+     }
+
+     // Olhos maus
+     ctx.fillStyle = '#fff';
+     ctx.beginPath(); ctx.arc(-5, -2, 3, 0, Math.PI*2); ctx.fill();
+     ctx.beginPath(); ctx.arc(8, -2, 3, 0, Math.PI*2); ctx.fill();
+     ctx.fillStyle = '#000';
+     ctx.beginPath(); ctx.arc(-6, -2, 1.5, 0, Math.PI*2); ctx.fill();
+     ctx.beginPath(); ctx.arc(7, -2, 1.5, 0, Math.PI*2); ctx.fill();
+     
+     // Sobrancelha malvada cruzada
+     ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+     ctx.beginPath(); ctx.moveTo(-8, -6); ctx.lineTo(-2, -4); ctx.stroke();
+     ctx.beginPath(); ctx.moveTo(11, -6); ctx.lineTo(5, -4); ctx.stroke();
+
+     // Focinho
+     ctx.fillStyle = bellyColor;
+     ctx.beginPath(); ctx.ellipse(-10, 8, 10, 6, -0.2, 0, Math.PI*2); ctx.fill();
+     ctx.fillStyle = '#000';
+     ctx.beginPath(); ctx.arc(-14, 6, 3, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawHilda(ctx, timer) {
+  ctx.save();
+  ctx.translate(0, -10);
+  ctx.scale(1.8, 1.8); // Hilda é um cachorrão gigante!
+
+  // Leg movement
+  const walk1 = Math.sin(timer * 15) * 5;
+  const walk2 = Math.cos(timer * 15) * 5;
+  
+  // Back legs
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.ellipse(-20 + walk1, 20, 6, 12, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(10 + walk2, 20, 6, 12, 0, 0, Math.PI*2); ctx.fill();
+  
+  // Body (Cachorro de rua preto / Vira-lata agressivo)
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.ellipse(-5, 0, 35, 18, 0, 0, Math.PI*2); ctx.fill();
+  
+  // Front legs
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath(); ctx.ellipse(-10 - walk1, 22, 6, 12, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(20 - walk2, 22, 6, 12, 0, 0, Math.PI*2); ctx.fill();
+
+  // Rabo agressivo rápido 
+  ctx.save();
+  ctx.translate(30, -5);
+  ctx.rotate((Math.sin(timer * 25) * 0.4) + 0.3);
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.ellipse(10, 0, 15, 3, 0, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+  
+  // Head
+  ctx.translate(-35, -15);
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.ellipse(0, 0, 18, 15, -0.2, 0, Math.PI*2); ctx.fill();
+  
+  // Orelhas caídas que dão cara de vira-lata
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.ellipse(5, -12, 5, 10, 0.5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-10, -8, 5, 12, -0.8, 0, Math.PI*2); ctx.fill(); 
+
+  // Focinho
+  ctx.fillStyle = '#333';
+  ctx.beginPath(); ctx.ellipse(-12, 5, 12, 8, -0.2, 0, Math.PI*2); ctx.fill();
+  
+  // Nariz Black
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(-22, 2, 4, 0, Math.PI*2); ctx.fill();
+  
+  // Olho Maligno Vermelho
+  ctx.fillStyle = '#ff0000';
+  ctx.beginPath(); ctx.arc(-4, -3, 5, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#ffcc00'; 
+  ctx.beginPath(); ctx.arc(-4, -3, 2, 0, Math.PI*2); ctx.fill();
+  
+  // Sobrancelha zangada colada no olho
+  ctx.lineWidth = 3; ctx.strokeStyle = '#000';
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(2, -8); ctx.lineTo(-10, -5); ctx.stroke();
+
+  // Dentes pontiagudos saindo da boca  
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.moveTo(-20, 10); ctx.lineTo(-15, 15); ctx.lineTo(-12, 10); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-12, 10); ctx.lineTo(-8, 15); ctx.lineTo(-5, 10); ctx.fill();
+  
+  ctx.restore();
+}
+
+function drawUrubu(ctx, flap) {
+  ctx.save();
+  ctx.translate(0, -35); // Centro do Pássaro
+
+  // Corpo principal escuro (corcunda)
+  ctx.fillStyle = '#333b47';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 22, 28, 0.2, 0, Math.PI*2);
+  ctx.fill();
+
+  // Asas batendo
+  ctx.save();
+  ctx.translate(-15, -5);
+  ctx.rotate(-flap - 0.3);
+  ctx.fillStyle = '#1c2026';
+  ctx.beginPath(); ctx.ellipse(-5, 15, 12, 35, 0.4, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(15, -5);
+  ctx.rotate(flap + 0.3);
+  ctx.fillStyle = '#1c2026';
+  ctx.beginPath(); ctx.ellipse(5, 15, 12, 35, -0.4, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  // Colar fofinho de plumas brancas
+  ctx.fillStyle = '#f0f0f0';
+  ctx.beginPath();
+  ctx.arc(0, -20, 16, 0, Math.PI*2);
+  ctx.arc(-12, -15, 14, 0, Math.PI*2);
+  ctx.arc(12, -15, 14, 0, Math.PI*2);
+  ctx.arc(0, -10, 14, 0, Math.PI*2);
+  ctx.fill();
+
+  // Pescoço comprido rosa
+  ctx.save();
+  ctx.strokeStyle = '#ffaec9'; 
+  ctx.lineWidth = 14;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(0, -20);
+  ctx.quadraticCurveTo(-15, -35, -10, -50); 
+  ctx.stroke();
+  
+  // Rugas no pescoço
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#d6859e';
+  ctx.beginPath(); ctx.moveTo(-6, -26); ctx.lineTo(0, -24); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-10, -33); ctx.lineTo(-4, -30); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-12, -43); ctx.lineTo(-6, -41); ctx.stroke();
+  ctx.restore();
+
+  // Cabeça rosa
+  ctx.save();
+  ctx.translate(-14, -54);
+  ctx.fillStyle = '#ffaec9';
+  ctx.beginPath(); ctx.ellipse(0, 0, 14, 12, -0.2, 0, Math.PI*2); ctx.fill();
+  
+  // Bico Laranja Gigante Adunco
+  ctx.fillStyle = '#ff8800';
+  ctx.beginPath();
+  ctx.moveTo(8, -2);
+  ctx.quadraticCurveTo(25, -10, 20, 15); 
+  ctx.quadraticCurveTo(5, 10, 2, 2); 
+  ctx.fill();
+  
+  ctx.fillStyle = '#cc5500';
+  ctx.beginPath();
+  ctx.moveTo(5, 3);
+  ctx.quadraticCurveTo(15, 12, 12, 8);
+  ctx.fill();
+
+  // Olho grande meio para fora (estilo maluco)
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(4, -8, 7, 0, Math.PI*2); ctx.fill();
+  
+  // Pupila raivosa
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(6, -8, 2, 0, Math.PI*2); ctx.fill();
+  
+  // Sobrancelha malvada e grossa
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = '#222';
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-5, -14); ctx.lineTo(12, -10); ctx.stroke();
+
+  // Cabelinhos da careca
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(-5, -12); ctx.lineTo(-8, -20); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-2, -12); ctx.lineTo(0, -22); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(2, -12); ctx.lineTo(6, -18); ctx.stroke();
+
+  ctx.restore(); 
+
+  // Garras amarelas
+  ctx.fillStyle = '#ffcc00';
+  ctx.beginPath(); ctx.ellipse(-6, 25, 6, 4, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, 25, 4, 6, -0.5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(6, 25, 6, 4, 0, 0, Math.PI*2); ctx.fill();
+
+  ctx.restore();
+}
+
+function drawSeagull(ctx, flap, beakOpen) {
+  ctx.save();
+  ctx.translate(0, -30); // Base
+
+  // Asa Traseira
+  ctx.save();
+  ctx.translate(-20, -5);
+  ctx.rotate(-flap);
+  ctx.fillStyle = '#e8e8e8';
+  ctx.beginPath(); ctx.ellipse(-15, 0, 25, 10, -0.2, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  // Corpo (Gaivota peituda e redonda)
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 35, 25, 0.1, 0, Math.PI*2);
+  ctx.fill();
+
+  // Pescoço saindo da frente
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 20;
+  ctx.beginPath(); ctx.moveTo(20, -10); ctx.lineTo(40, -40); ctx.stroke();
+
+  // Asa Frontal (agora bem mais abaixo)
+  ctx.save();
+  ctx.translate(-5, 5);
+  ctx.rotate(flap);
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.ellipse(-20, 0, 30, 12, 0.1, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#d0d0d0'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(-10, 2); ctx.lineTo(-30, 4); ctx.stroke();
+  ctx.restore();
+
+  // Cabeça e Lencinho
+  ctx.translate(40, -40);
+
+  // Lenço Vermelho amarrado
+  ctx.fillStyle = '#cc1111';
+  ctx.beginPath(); ctx.ellipse(0, 10, 14, 8, 0, 0, Math.PI*2); ctx.fill();
+  // Rabicho do lenço descendo
+  ctx.beginPath(); ctx.moveTo(-10, 10); ctx.lineTo(-20, 25); ctx.lineTo(-5, 15); ctx.fill();
+  
+  // Bolinhas no lenco
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(-5, 8, 1.5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(2, 12, 2, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(8, 8, 1.5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(-14, 20, 1.5, 0, Math.PI*2); ctx.fill();
+
+  // Rosto gigante de frente
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.ellipse(5, -5, 22, 22, 0, 0, Math.PI*2); 
+  ctx.fill();
+
+  // Penas despenteadas
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0, -25); ctx.lineTo(-5, -40); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(8, -26); ctx.lineTo(10, -42); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(15, -20); ctx.lineTo(25, -35); ctx.stroke();
+
+  // Bico Adunco Extenso (Animado para abrir/fechar)
+  const bO = beakOpen ? 15 : 0; // angulo da mandíbula de baixo
+  ctx.fillStyle = '#e87b1c';
+  
+  // Parte de cima do bico
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(25, 0); 
+  ctx.quadraticCurveTo(60, 5, 70, 15); 
+  ctx.quadraticCurveTo(40, 15, 20, 10);
+  ctx.fill();
+  ctx.strokeStyle = '#ba6216'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(25, 5); ctx.lineTo(60, 12); ctx.stroke();
+  ctx.restore();
+
+  // Parte de baixo do bico (mandíbula)
+  if (beakOpen) {
+      ctx.save();
+      ctx.translate(25, 10);
+      ctx.rotate(0.3); // abre a boca
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(30, 10, 45, 15);
+      ctx.quadraticCurveTo(20, 15, 0, 5);
+      ctx.fill();
+      ctx.restore();
+  }
+
+  // Bochechas da vergonha
+  ctx.fillStyle = '#ff99aa';
+  ctx.beginPath(); ctx.ellipse(10, 10, 7, 5, 0, 0, Math.PI*2); ctx.fill();
+
+  // Óculos Gatinha
+  ctx.strokeStyle = '#cc1111';
+  ctx.lineWidth = 4;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-5, -12); // Ponto de orelha (esquerdo do oculos)
+  ctx.quadraticCurveTo(0, 5, 12, -2); // lente esquerda
+  ctx.quadraticCurveTo(5, -15, -5, -12); 
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(18, -2); // Ponte do nariz
+  ctx.quadraticCurveTo(25, 8, 35, -5); // lente direita
+  ctx.quadraticCurveTo(30, -18, 18, -2); 
+  ctx.stroke();
+
+  ctx.beginPath(); ctx.moveTo(12, -2); ctx.lineTo(18, -2); ctx.stroke(); 
+  
+  // Olho vesgo 
+  ctx.fillStyle = '#55aaff'; // pupila
+  ctx.beginPath(); ctx.arc(8, -4, 2.5, 0, Math.PI*2); ctx.fill(); // esquerdo puxado pra direita
+  ctx.beginPath(); ctx.arc(22, -4, 2.5, 0, Math.PI*2); ctx.fill(); // direito puxado pra esquerda (VESGA)
+
+  // Palpebras cansadas (olho meio fechado)
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(2, -6); ctx.lineTo(10, -4); ctx.stroke(); 
+  ctx.beginPath(); ctx.moveTo(18, -4); ctx.lineTo(28, -6); ctx.stroke(); 
+
+  // Cílios
+  ctx.beginPath(); ctx.moveTo(2, -6); ctx.lineTo(-2, -12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(6, -5); ctx.lineTo(4, -10); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(28, -6); ctx.lineTo(32, -12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(23, -4); ctx.lineTo(26, -10); ctx.stroke();
+
+  ctx.restore();
+}
+
 function drawAnimal(ctx, x, y, type, timer, badType) {
   ctx.save();
   ctx.translate(x, y + Math.sin(timer * 5) * 15); 
@@ -1870,19 +2467,20 @@ function drawAnimal(ctx, x, y, type, timer, badType) {
   ctx.shadowColor = 'rgba(0,0,0,0.5)';
   ctx.shadowBlur = 10;
 
-  // Add flapping animation to bats and flies!
-  if (badType !== 'eagle') {
-     const flap = Math.sin(timer * 40) * 0.3; // rapid rocking wings
-     ctx.rotate(flap);
+  if (badType === '🐦‍⬛') {
+     const flap = Math.sin(timer * 20) * 0.4; 
+     drawUrubu(ctx, flap);
   } else {
-     const glide = Math.sin(timer * 10) * 0.1;
-     ctx.rotate(glide);
+     if (badType !== '🦅') {
+       const flap = Math.sin(timer * 40) * 0.3;
+       ctx.rotate(flap);
+     } else {
+       const glide = Math.sin(timer * 10) * 0.1;
+       ctx.rotate(glide);
+     }
+     ctx.font = '60px Arial'; 
+     ctx.fillText(badType, 0, -25);
   }
-
-  ctx.font = '60px Arial'; 
-  if (badType === 'bat') ctx.fillText('🦇', 0, -25);
-  else if (badType === 'eagle') ctx.fillText('🦅', 0, -25);
-  else ctx.fillText('🪰', 0, -25); // fly
   
   ctx.shadowBlur = 0;
   // Undo rotation so the line falls straight down to the caught animal!
@@ -1900,14 +2498,12 @@ function drawAnimal(ctx, x, y, type, timer, badType) {
   ctx.lineTo(0, 30);
   ctx.stroke();
 
+  // Animação de pânico (chacoalha) do bichinho segurado
+  const panicWobble = Math.sin(timer * 20) * 0.15;
+  ctx.rotate(panicWobble);
+
   ctx.font = '40px Arial';
-  if (type === 'cat') ctx.fillText('🐈', 0, 40);
-  else if (type === 'marmota') ctx.fillText('🦦', 0, 40);
-  else if (type === 'lagosta') ctx.fillText('🦞', 0, 40);
-  else if (type === 'camarao') ctx.fillText('🦐', 0, 40); 
-  else if (type === 'lombriz') ctx.fillText('🪱', 0, 40); 
-  else if (type === 'dove') ctx.fillText('🕊️', 0, 40); 
-  else ctx.fillText('🐒', 0, 40); 
+  ctx.fillText(type, 0, 40); 
   
   ctx.restore();
 }
@@ -1941,14 +2537,22 @@ function drawStone(ctx, x, y, rot) {
 function render() {
   const theme = getTheme(game.phase);
   
-  const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  const skyGrad = ctx.createLinearGradient(0, -400, 0, canvas.height + 400);
   skyGrad.addColorStop(0, theme.sky);
   if (theme.type === 'forest') skyGrad.addColorStop(1, '#afeeee');
   else if (theme.type === 'mountain') skyGrad.addColorStop(1, '#ffc0cb');
   else skyGrad.addColorStop(1, '#000');
 
   ctx.fillStyle = skyGrad;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Preenche uma grande area para nao aparecer bordas vazias quando o jogo inclina!
+  ctx.fillRect(-600, -600, canvas.width + 1200, canvas.height + 1200);
+
+  ctx.save();
+  if (game.cameraAngle) {
+    ctx.translate(canvas.width / 2, Math.min(GROUND_Y, canvas.height / 2 + 100)); 
+    ctx.rotate(game.cameraAngle);
+    ctx.translate(-canvas.width / 2, -Math.min(GROUND_Y, canvas.height / 2 + 100));
+  }
 
   if (theme.starAlpha > 0) {
     ctx.fillStyle = '#fff';
@@ -2012,17 +2616,17 @@ function render() {
     ctx.shadowBlur = 0;
   }
 
-  const g1Grad = ctx.createLinearGradient(0, GROUND_Y, 0, canvas.height);
+  const g1Grad = ctx.createLinearGradient(0, GROUND_Y, 0, canvas.height + 600);
   g1Grad.addColorStop(0, theme.g1);
   g1Grad.addColorStop(1, '#111'); 
   ctx.fillStyle = g1Grad;
-  ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
+  ctx.fillRect(-600, GROUND_Y, canvas.width + 1200, canvas.height - GROUND_Y + 600);
   
   ctx.fillStyle = theme.g2; 
   ctx.beginPath();
-  let startX = -(game.bgOffset % 40); 
-  ctx.moveTo(0, GROUND_Y - 20); 
-  for(let x = startX; x <= canvas.width + 40; x += 20) {
+  let startX = -(game.bgOffset % 40) - 600; 
+  ctx.moveTo(-600, GROUND_Y - 20); 
+  for(let x = startX; x <= canvas.width + 640; x += 20) {
     let bump = Math.sin((x + game.bgOffset) * 0.05) * 8;
     ctx.lineTo(x, GROUND_Y + bump - 15);
   }
@@ -2123,13 +2727,27 @@ function render() {
         ctx.fillText('🌩️', 0, 0); 
         drawAngryEyes(ctx, 0, 10);
     } else if (boss.type === 'vacuum') {
-        ctx.fillText('🧹', 0, 0); 
+        ctx.fillText('🧲', 0, 0); // Magnet representing vacuum suction
         drawAngryEyes(ctx, 0, -10);
     } else if (boss.type === 'car') {
         ctx.fillText('🚘', 0, 0); 
         drawAngryEyes(ctx, 0, 5);
-    } else {
+    } else if (boss.type === 'motorcycle') {
         ctx.fillText('🏍️', 0, 0); 
+        drawAngryEyes(ctx, 5, -5);
+    } else if (boss.type === 'seagull') {
+        const flap = Math.sin(boss.timer * 15) * 0.3;
+        drawSeagull(ctx, flap, boss.mode === 'DIVING');
+    } else if (boss.type === 'bigdog') {
+        drawHilda(ctx, boss.timer);
+    } else if (boss.type === 'broom') {
+        ctx.fillText('🧹', 0, 0); 
+        drawAngryEyes(ctx, 0, -10);
+    } else if (boss.type === 'fireworks') {
+        ctx.fillText('🎇', 0, 0); 
+        drawAngryEyes(ctx, 0, -5);
+    } else if (boss.type === 'hose') {
+        ctx.fillText('🚿', 0, 0); 
         drawAngryEyes(ctx, 5, -5);
     }
     
@@ -2151,6 +2769,12 @@ function render() {
     else if (boss.type === 'storm') fearName = 'TROVÃO';
     else if (boss.type === 'vacuum') fearName = 'ASPIRADOR';
     else if (boss.type === 'car') fearName = 'CARRO';
+    else if (boss.type === 'motorcycle') fearName = 'MOTO';
+    else if (boss.type === 'seagull') fearName = 'GAIVOTA BOBONA';
+    else if (boss.type === 'bigdog') fearName = 'ILDA';
+    else if (boss.type === 'broom') fearName = 'VASSOURA';
+    else if (boss.type === 'fireworks') fearName = 'FOGOS';
+    else if (boss.type === 'hose') fearName = 'BANHO';
 
     ctx.fillText(fearName, 0, 60);
 
@@ -2159,7 +2783,8 @@ function render() {
 
   for(let b of bulldogs) {
     if (b.kind === 'frida') drawBulldog(ctx, b.x, b.y, b.width, b.height, b.animTimer, b.state);
-    else drawCat(ctx, b.x, b.y, b.width, b.height, b.animTimer, b.state);
+    else if (b.kind === 'cinder') drawCat(ctx, b.x, b.y, b.width, b.height, b.animTimer, b.state);
+    else drawBear(ctx, b.x, b.y, b.kind, b.animTimer, b.state);
   }
 
   for(let e of enemies) {
@@ -2186,31 +2811,35 @@ function render() {
   }
 
   for(let b of bombs) {
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.rotate(Math.PI * 0.75); // Gira 135 graus para que o bico caia apontando para o chão!
+
     ctx.font = '45px Arial'; 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.shadowColor = 'rgba(0,0,0,0.6)';
     ctx.shadowBlur = 10;
-    ctx.fillText('🎁', b.x, b.y); 
+    ctx.fillText('🚀', 0, 0); 
     ctx.shadowBlur = 0;
+    ctx.restore();
   }
 
   for(let sa of savedAnimals) {
     ctx.save();
     ctx.translate(sa.x, sa.y);
+    
+    // Animação do paraquedas balançando suavemente
+    const swing = Math.sin(Date.now() * 0.003) * 0.2;
+    ctx.rotate(swing);
+
     ctx.font = '40px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.shadowColor = 'rgba(0,0,0,0.5)';
     ctx.shadowBlur = 5;
     ctx.fillText('🪂', 0, -40); 
-    if (sa.type === 'cat') ctx.fillText('🐈', 0, 0); 
-    else if (sa.type === 'marmota') ctx.fillText('🦦', 0, 0); 
-    else if (sa.type === 'lagosta') ctx.fillText('🦞', 0, 0); 
-    else if (sa.type === 'camarao') ctx.fillText('🦐', 0, 0); 
-    else if (sa.type === 'lombriz') ctx.fillText('🪱', 0, 0); 
-    else if (sa.type === 'dove') ctx.fillText('🕊️', 0, 0); 
-    else ctx.fillText('🐒', 0, 0); 
+    ctx.fillText(sa.type, 0, 0); 
     ctx.restore();
   }
 
@@ -2277,6 +2906,9 @@ function render() {
   if (player.x > -50) {
     drawDog(ctx, player.x, player.y, player.width, player.height, player.animTimer, player.isJumping, player.isFalling);
   }
+
+  // Desfaz o tilt da camera
+  ctx.restore();
 }
 
 function gameLoop(timestamp) {
