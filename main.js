@@ -1438,7 +1438,8 @@ function update(dt) {
     }
     
     if (bombs[i].y > GROUND_Y) {
-      soundPoof();
+      soundPoof(); // Usamos o poof como base
+      playTone(100, 'triangle', 0.3, 0.2); // Som de impacto do torpedo
       createExplosion(bombs[i].x, GROUND_Y, '#ffaa00', 10);
       bombs.splice(i, 1);
     }
@@ -2878,7 +2879,7 @@ function render() {
     else if (boss.type === 'vacuum') fearName = 'ASPIRADOR';
     else if (boss.type === 'car') fearName = 'CARRO';
     else if (boss.type === 'motorcycle') fearName = 'MOTO';
-    else if (boss.type === 'seagull') fearName = 'GAIVOTA BOBONA';
+    else if (boss.type === 'seagull') fearName = 'GAIVOTA VESGA';
     else if (boss.type === 'bigdog') fearName = 'ILDA';
     else if (boss.type === 'broom') fearName = 'VASSOURA';
     else if (boss.type === 'fireworks') fearName = 'FOGOS';
@@ -2960,22 +2961,21 @@ function render() {
     ctx.save();
     ctx.translate(p.x, p.y);
     
-    // Draw Custom Airplane Body
-    if (airplaneBodyImg.complete) {
-      // Body (it already looks horizontal in the drawing, but we can adjust if needed)
+    // Draw Custom Airplane Body with Safety Check
+    if (airplaneBodyImg.complete && airplaneBodyImg.naturalWidth > 0) {
       ctx.drawImage(airplaneBodyImg, -50, -40, 100, 80);
       
-      // Draw Pilot inside the cockpit area
-      if (pilotHeadImg.complete) {
+      // Draw Pilot inside the cockpit area with Safety Check
+      if (pilotHeadImg.complete && pilotHeadImg.naturalWidth > 0) {
         ctx.save();
         ctx.beginPath();
         ctx.arc(-5, -15, 15, 0, Math.PI*2);
-        ctx.clip(); // Keep head inside a circle/cockpit
+        ctx.clip(); 
         ctx.drawImage(pilotHeadImg, -20, -30, 30, 30);
         ctx.restore();
       }
     } else {
-      // Fallback emoji
+      // Emergency Fallback emoji if images fail
       ctx.rotate(-Math.PI / 4); 
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
