@@ -205,62 +205,32 @@ function initAudio() {
   }
 }
 
-// YT BGM Player
-let ytPlayer = null;
-
-const tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-const firstScriptTag = document.getElementsByTagName('script')[0];
-if(firstScriptTag && firstScriptTag.parentNode) {
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-} else {
-  document.head.appendChild(tag);
-}
-
-window.onYouTubeIframeAPIReady = function() {
-  ytPlayer = new YT.Player('yt-player', {
-    height: '200',
-    width: '200',
-    videoId: 'isGaq0fvCCI', // Cartoon Background Music Funny Animation Free
-    playerVars: {
-      'autoplay': 0,
-      'controls': 0,
-      'disablekb': 1,
-      'loop': 1,
-      'playlist': 'isGaq0fvCCI' 
-    },
-    events: {
-      'onReady': function(event) {
-        event.target.setVolume(50); 
-      }
-    }
-  });
-};
+// BGM Player (HTML5 Audio para compatibilidade mobile e sem YouTubeAds)
+let bgmAudio = null;
+let currentBgmFile = '';
 
 function startBGM() {
-  if (!ytPlayer || !ytPlayer.loadVideoById) return;
+  const targetFile = game.phase >= 11 ? 'bgm.mp3' : 'cartoon_bgm.mp3';
   
-  let targetId = 'isGaq0fvCCI'; // Default Cartoon Music
-  if (game.phase >= 11) {
-    targetId = 'yi6qpbUo-w8'; // Pure Piano Instrumental (Moving from default to phase 11)
+  if (!bgmAudio) {
+    bgmAudio = new Audio(targetFile);
+    bgmAudio.loop = true;
+    bgmAudio.volume = 0.5;
+    currentBgmFile = targetFile;
+  } else if (currentBgmFile !== targetFile) {
+    bgmAudio.src = targetFile;
+    bgmAudio.load();
+    currentBgmFile = targetFile;
   }
   
-  // Only change if different to avoid restarting music
-  const currentData = ytPlayer.getVideoData ? ytPlayer.getVideoData() : {};
-  if (currentData.video_id !== targetId) {
-    ytPlayer.loadVideoById({
-      videoId: targetId,
-      startSeconds: 0,
-      suggestedQuality: 'small'
-    });
-  } else {
-    ytPlayer.playVideo();
-  }
+  // Os navegadores bloqueiam som desacompanhado de clique.
+  // Nosso botão 'Iniciar' permite que este play() funcione corretamente.
+  bgmAudio.play().catch(e => console.log('Autoplay da música foi prevenido:', e));
 }
 
 function stopBGM() {
-  if (ytPlayer && ytPlayer.pauseVideo) {
-    ytPlayer.pauseVideo();
+  if (bgmAudio) {
+    bgmAudio.pause();
   }
 }
 
@@ -1349,7 +1319,7 @@ function update(dt) {
   }
   
   if (player.y >= GROUND_Y && !player.isFalling) {
-    if (overHole && !player.isJumping) {
+    if (overHole && !player.isJumping && (!player.invincibleTimer || player.invincibleTimer <= 0)) {
       player.isFalling = true;
     } else {
       player.y = GROUND_Y;
@@ -1488,10 +1458,21 @@ function update(dt) {
        * A gente calcula a distância entre a Luna e o Bulldog.
        * Se a distância for muito pequena, significa que eles se bateram!
        */
-      if (!player.isFalling && 
+      if (!player.isFalling && (!player.invincibleTimer || player.invincibleTimer <= 0) &&
           Math.abs(player.x - b.x) < player.width/2 + b.width/2 - 10 &&
           Math.abs(player.y - player.height/2 - (b.y - b.height/2)) < player.height/2 + b.height/2 - 10) {
-        die(); // Luna se machucou :(
+        
+        if (player.vy > 0) { // Pulo estilo Mario
+          b.state = 'eating';
+          b.animTimer = 0;
+          soundHappy();
+          createExplosion(b.x, b.y - 30, '#ffb6c1', 20);
+          game.score += 20;
+          player.vy = player.jumpPower * 0.8; // Quica
+          updateUI();
+        } else {
+          die(); // Luna se machucou :(
+        }
       }
       if (b.x + b.width < -100) bulldogs.splice(i, 1);
     }

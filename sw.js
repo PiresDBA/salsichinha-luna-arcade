@@ -1,4 +1,4 @@
-const CACHE_NAME = 'luna-arcade-v38.3';
+const CACHE_NAME = 'luna-arcade-v38.4';
 const ASSETS = [
   '/',
   '/index.html',
@@ -9,6 +9,7 @@ const ASSETS = [
   '/icon-512.png',
   '/luna-menu-transparent.png',
   '/bgm.mp3',
+  '/cartoon_bgm.mp3',
   '/bear1.mp3',
   '/bear2.mp3',
   '/bear3.mp3',
