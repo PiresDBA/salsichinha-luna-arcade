@@ -1398,10 +1398,18 @@ function update(dt) {
       if (Math.abs(h.x - canvas.width) < h.width * 2 + 100) valid = false;
     }
     if (valid && bulldogs.length < 2) { 
-      const kinds = ['cinder', 'frida', 'white_bear', 'brown_bear', 'panda_bear'];
+      // Pool de obstáculos: todos MENOS o herói selecionado. Se não é Luna, Luna vira obstáculo!
+      let kinds = ['cinder', 'frida', 'white_bear', 'brown_bear', 'panda_bear'];
+      if (player.kind !== 'luna') kinds.push('luna');
+      // Remove o herói atual e variantes dele
+      if (player.kind === 'cinder') kinds = kinds.filter(k => k !== 'cinder');
+      else if (player.kind === 'frida') kinds = kinds.filter(k => k !== 'frida');
+      else if (player.kind === 'bear') kinds = kinds.filter(k => !k.includes('bear'));
+      
       const t = kinds[Math.floor(Math.random() * kinds.length)];
-      let w = t === 'cinder' ? 60 : (t === 'frida' ? 110 : 90); 
-      let h = t === 'cinder' ? 35 : (t === 'frida' ? 50 : 60);
+      let w = t === 'cinder' ? 60 : (t === 'frida' || t === 'luna' ? 110 : 90); 
+      let h = t === 'cinder' ? 35 : (t === 'frida' || t === 'luna' ? 50 : 60);
+      if (t === 'luna') { w = 80; h = 40; }
       bulldogs.push({ x: canvas.width, y: GROUND_Y, width: w, height: h, state: 'idle', animTimer: 0, kind: t }); 
       if (t === 'cinder') soundMeow(); 
       else if (t.includes('bear')) soundBear(); 
@@ -3167,6 +3175,10 @@ function render() {
   for(let b of bulldogs) {
     if (b.kind === 'frida') drawBulldog(ctx, b.x, b.y, b.width, b.height, b.animTimer, b.state);
     else if (b.kind === 'cinder') drawCat(ctx, b.x, b.y, b.width, b.height, b.animTimer, b.state);
+    else if (b.kind === 'luna') {
+      // Luna como obstáculo: desenha a salsichinha virada pra esquerda (como inimigo)
+      drawAnimatedAnimal(ctx, b.x, b.y, b.width, b.height || 30, b.animTimer, false, false, 'luna');
+    }
     else drawBear(ctx, b.x, b.y, b.kind, b.animTimer, b.state);
   }
 
@@ -3290,16 +3302,55 @@ function render() {
   ctx.globalAlpha = 1;
 
   if (player.x > -50) {
-    // Dispatcher: desenha o herói usando os sprites já existentes no jogo
-    if (player.kind === 'cinder') {
-      drawCat(ctx, player.x, player.y, player.width, player.height, player.animTimer, player.isJumping ? 'jumping_to_eat' : 'idle');
-    } else if (player.kind === 'frida') {
-      drawBulldog(ctx, player.x, player.y, player.width, player.height, player.animTimer, player.isJumping ? 'jumping_to_eat' : 'idle');
-    } else if (player.kind === 'bear') {
-      drawBear(ctx, player.x, player.y, 'brown_bear', player.animTimer, player.isJumping ? 'jumping_to_eat' : 'idle');
-    } else {
-      // Luna (padrão) — usa a função original drawAnimatedAnimal que é o drawDog refatorado
+    // drawHero: Desenha o herói selecionado virado pra frente, com tanquezinho e efeitos
+    ctx.save();
+    
+    // Invencibilidade = pisca
+    if (player.invincible) {
+      ctx.globalAlpha = (Math.floor(Date.now() / 150) % 2 === 0) ? 0.3 : 0.8;
+    }
+    
+    // Escala de queda no buraco
+    if (player.isFalling) {
+      ctx.translate(player.x, player.y + 20);
+      ctx.scale(player.scale || 1, player.scale || 1);
+      ctx.rotate(player.rotation || 0);
+      ctx.translate(-player.x, -(player.y + 20));
+    }
+    
+    if (player.kind === 'luna') {
+      // Luna já olha pra direita naturalmente
       drawAnimatedAnimal(ctx, player.x, player.y, player.width, player.height, player.animTimer, player.isJumping, player.isFalling, 'luna');
+    } else {
+      // Espelha horizontalmente (os sprites de inimigos olham pra esquerda)
+      ctx.translate(player.x, 0);
+      ctx.scale(-1, 1);
+      ctx.translate(-player.x, 0);
+      
+      let st = player.isJumping ? 'jumping_to_eat' : 'idle';
+      if (player.kind === 'cinder') {
+        drawCat(ctx, player.x, player.y, player.width, player.height, player.animTimer, st);
+      } else if (player.kind === 'frida') {
+        drawBulldog(ctx, player.x, player.y, player.width, player.height, player.animTimer, st);
+      } else if (player.kind === 'bear') {
+        drawBear(ctx, player.x, player.y, 'brown_bear', player.animTimer, st);
+      }
+    }
+    ctx.restore();
+    
+    // Tanquezinho nas costas de TODOS os heróis (sempre virado pra direita)
+    if (player.kind !== 'luna') {
+      ctx.save();
+      ctx.translate(player.x - 5, player.y + 20 - player.height - 18);
+      ctx.fillStyle = '#00bfff'; ctx.beginPath(); ctx.roundRect(-12, -12, 24, 18, 6); ctx.fill();
+      ctx.fillStyle = '#ccffff'; ctx.beginPath(); ctx.roundRect(-6, -8, 12, 10, 3); ctx.fill();
+      ctx.fillStyle = '#ff1493'; ctx.beginPath(); ctx.roundRect(-5, -16, 10, 5, 2); ctx.fill();
+      ctx.fillStyle = '#aaa'; 
+      ctx.beginPath(); ctx.moveTo(12, -4); ctx.lineTo(20, -2); ctx.lineTo(20, 2); ctx.lineTo(12, 4); ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(-6, 6); ctx.lineTo(-6, 18); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(6, 6); ctx.lineTo(6, 18); ctx.stroke();
+      ctx.restore();
     }
     
     // Power-up Timer Clock
