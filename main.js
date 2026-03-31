@@ -3278,42 +3278,49 @@ function render() {
       
       ctx.save();
       if (b.state === 'eating') {
-        // Salsichinha enrolada dormindo!
-        ctx.translate(b.x, b.y + 15);
+        // Salsichinha enrolada dormindo em TAMANHO REAL! (proporcional aos 80px)
+        ctx.translate(b.x, b.y + 10);
         ctx.shadowColor = 'rgba(0,0,0,0.5)';
-        ctx.shadowBlur = 5;
+        ctx.shadowBlur = 8;
         
-        // Corpo enrolado
-        ctx.fillStyle = '#B2663E';
-        ctx.beginPath(); ctx.ellipse(0, 0, 22, 14, 0, 0, Math.PI*2); ctx.fill();
+        const bodyGrad = ctx.createLinearGradient(0, -30, 0, 0);
+        bodyGrad.addColorStop(0, '#B2663E'); // Top
+        bodyGrad.addColorStop(1, '#5C2E0A'); // Bottom (darker belly area)
+
+        // Corpo grande de salsicha enrolada (raio 35x20)
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath(); ctx.ellipse(-5, -5, 35, 20, 0, 0, Math.PI*2); ctx.fill();
         
         // Patinhas encolhidas
-        ctx.fillStyle = '#8B4513';
-        ctx.beginPath(); ctx.ellipse(-10, 8, 6, 4, -0.2, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(10, 8, 6, 4, 0.2, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#5C2E0A';
+        ctx.beginPath(); ctx.ellipse(-20, 10, 10, 6, -0.2, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(15, 10, 10, 6, 0.2, 0, Math.PI*2); ctx.fill();
         
-        // Cabeça apoiada
-        ctx.fillStyle = '#B2663E';
-        ctx.beginPath(); ctx.ellipse(-12, -2, 12, 10, -0.3, 0, Math.PI*2); ctx.fill();
+        // Cabeça
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath(); ctx.ellipse(-25, -2, 18, 14, -0.3, 0, Math.PI*2); ctx.fill();
         
-        // Focinho preto
+        // Focinho comprido característico de Dachshund
+        ctx.beginPath(); ctx.ellipse(-38, 5, 10, 7, -0.6, 0, Math.PI*2); ctx.fill();
+        
+        // Nariz preto molhadozinho
         ctx.fillStyle = '#000';
-        ctx.beginPath(); ctx.arc(-22, 2, 3, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(-45, 9, 4, 0, Math.PI*2); ctx.fill();
         
-        // Olho fechado
-        ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.arc(-15, -4, 3, Math.PI, 0); ctx.stroke();
+        // Olhinho sonolento
+        ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(-28, -5, 5, Math.PI, 0); ctx.stroke();
         
-        // Orelha caída por cima
-        ctx.fillStyle = '#8B4513';
-        ctx.beginPath(); ctx.ellipse(-5, 0, 6, 10, 0.4, 0, Math.PI*2); ctx.fill();
+        // Orelha comprida cobrindo o corpo feito cobertor
+        ctx.fillStyle = '#5C2E0A';
+        ctx.beginPath(); ctx.ellipse(-15, 5, 10, 16, 0.4, 0, Math.PI*2); ctx.fill();
         
         ctx.shadowBlur = 0;
         
         // Zzz
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 16px Arial';
-        ctx.fillText('Zzz', 5, -20 + Math.sin(b.animTimer * 3) * 5);
+        ctx.font = 'bold 20px Arial';
+        ctx.fillText('Zzz', 15, -35 + Math.sin(b.animTimer * 3) * 5);
         
       } else {
         // Normal: espelha pra esquerda
