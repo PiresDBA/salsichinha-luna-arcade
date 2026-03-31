@@ -3278,23 +3278,50 @@ function render() {
       
       ctx.save();
       if (b.state === 'eating') {
-        // Barriga pra cima! Rotaciona 180° no eixo do corpo
-        ctx.translate(b.x, b.y + 20);
-        ctx.rotate(Math.PI);
-        ctx.translate(-b.x, -(b.y + 20));
-        // Ossinho girando
-        ctx.save();
-        ctx.translate(b.x + 30, b.y + 30);
-        ctx.rotate(b.animTimer * 15);
-        drawBone(ctx, 0, 0, 0);
-        ctx.restore();
+        // Salsichinha enrolada dormindo!
+        ctx.translate(b.x, b.y + 15);
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 5;
+        
+        // Corpo enrolado
+        ctx.fillStyle = '#B2663E';
+        ctx.beginPath(); ctx.ellipse(0, 0, 22, 14, 0, 0, Math.PI*2); ctx.fill();
+        
+        // Patinhas encolhidas
+        ctx.fillStyle = '#8B4513';
+        ctx.beginPath(); ctx.ellipse(-10, 8, 6, 4, -0.2, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(10, 8, 6, 4, 0.2, 0, Math.PI*2); ctx.fill();
+        
+        // Cabeça apoiada
+        ctx.fillStyle = '#B2663E';
+        ctx.beginPath(); ctx.ellipse(-12, -2, 12, 10, -0.3, 0, Math.PI*2); ctx.fill();
+        
+        // Focinho preto
+        ctx.fillStyle = '#000';
+        ctx.beginPath(); ctx.arc(-22, 2, 3, 0, Math.PI*2); ctx.fill();
+        
+        // Olho fechado
+        ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(-15, -4, 3, Math.PI, 0); ctx.stroke();
+        
+        // Orelha caída por cima
+        ctx.fillStyle = '#8B4513';
+        ctx.beginPath(); ctx.ellipse(-5, 0, 6, 10, 0.4, 0, Math.PI*2); ctx.fill();
+        
+        ctx.shadowBlur = 0;
+        
+        // Zzz
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText('Zzz', 5, -20 + Math.sin(b.animTimer * 3) * 5);
+        
       } else {
         // Normal: espelha pra esquerda
         ctx.translate(b.x, 0);
         ctx.scale(-1, 1);
         ctx.translate(-b.x, 0);
+        drawAnimatedAnimal(ctx, b.x, b.y, b.width, b.height || 30, b.animTimer, false, false, 'luna');
       }
-      drawAnimatedAnimal(ctx, b.x, b.y, b.width, b.height || 30, b.animTimer, false, false, 'luna');
       ctx.restore();
     }
     else drawBear(ctx, b.x, b.y, b.kind, b.animTimer, b.state);
