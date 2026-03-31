@@ -1087,10 +1087,10 @@ function startGame() {
   // Pega a dificuldade que você escolheu nos botões coloridos
   game.difficulty = document.querySelector('.diff-btn.selected')?.dataset.val || 'medium';
   player.kind = document.querySelector('.hero-btn.selected')?.dataset.val || 'luna';
-  // Ajusta tamanho físico conforme o herói
-  if (player.kind === 'cinder') { player.width = 60; player.height = 25; }
-  else if (player.kind === 'frida') { player.width = 90; player.height = 35; }
-  else if (player.kind === 'bear') { player.width = 90; player.height = 50; }
+  // Ajusta tamanho físico conforme o herói (mesmos tamanhos dos sprites originais do jogo)
+  if (player.kind === 'cinder') { player.width = 60; player.height = 35; }
+  else if (player.kind === 'frida') { player.width = 110; player.height = 50; }
+  else if (player.kind === 'bear') { player.width = 90; player.height = 60; }
   else { player.width = 80; player.height = 30; } // Luna padrão
   resetPhase();                     // Prepara o cenário
   UI.startScreen.classList.add('hidden'); // Esconde o menu inicial
@@ -3290,7 +3290,17 @@ function render() {
   ctx.globalAlpha = 1;
 
   if (player.x > -50) {
-    drawAnimatedAnimal(ctx, player.x, player.y, player.width, player.height, player.animTimer, player.isJumping, player.isFalling, player.kind);
+    // Dispatcher: desenha o herói usando os sprites já existentes no jogo
+    if (player.kind === 'cinder') {
+      drawCat(ctx, player.x, player.y, player.width, player.height, player.animTimer, player.isJumping ? 'jumping_to_eat' : 'idle');
+    } else if (player.kind === 'frida') {
+      drawBulldog(ctx, player.x, player.y, player.width, player.height, player.animTimer, player.isJumping ? 'jumping_to_eat' : 'idle');
+    } else if (player.kind === 'bear') {
+      drawBear(ctx, player.x, player.y, 'brown_bear', player.animTimer, player.isJumping ? 'jumping_to_eat' : 'idle');
+    } else {
+      // Luna (padrão) — usa a função original drawAnimatedAnimal que é o drawDog refatorado
+      drawAnimatedAnimal(ctx, player.x, player.y, player.width, player.height, player.animTimer, player.isJumping, player.isFalling, 'luna');
+    }
     
     // Power-up Timer Clock
     if (player.tripleShotTimer > 0 || player.doubleShotTimer > 0) {
